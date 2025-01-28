@@ -79,24 +79,24 @@ const colors = [
 //   const [colors, setColors] = useState(Object.values(Color));
 //   const [sizes] = useState(Object.values(Size));
 
-const handleImageUpload = async (id:string) => {
+const handleImageUpload = async (id: string) => {
+  const uploadedImageUrls: string[] = [];
+
+  for (const file of imageFiles) {
     const formData = new FormData();
-    
-    imageFiles.forEach((file) => {
-      formData.append("files", file);
-    });
-  
+    formData.append("file", file); // Sending one image per request
+
     try {
       const response = await api.uploadImage(formData, id);
-  
-      // Assuming the response contains the uploaded image URLs
-      const uploadedImageUrls = response.data.imageUrls; // Replace with the actual response structure
-      return uploadedImageUrls; // Return the URLs to use them later
+      uploadedImageUrls.push(response.data.imageUrl); // Assuming backend returns single URL per request
     } catch (error) {
-      console.error("Error uploading images:", error);
-      return []; // Return empty array in case of failure
+      console.error("Error uploading image:", error);
     }
-  };
+  }
+
+  return uploadedImageUrls;
+};
+
 
   
   const handleProductPost = async () => {

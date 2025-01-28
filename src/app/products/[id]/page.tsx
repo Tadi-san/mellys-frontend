@@ -18,7 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import LoadingPage from "@/app/loading";
 import { api } from "@/utils/index.api";
-
+import SkeletonLoading from "@/components/singleProductSkeletonLoading";
+import Cookies from "js-cookie";
 const ProductDescription = ({ params }: { params: { id: string } }) => {
   const { toast } = useToast();
   const [product, setProduct] = useState<any>(null);
@@ -28,14 +29,18 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isLocal, setIsLocal] = useState(true)
-
+  const getUser = () => {
+    const userCookie = Cookies.get("UserAuth");
+    return userCookie ? JSON.parse(userCookie) : null;
+  };
+  const [user] = useState<any>(getUser);
   useEffect(() => {
     const fetchProductDetailsAndCartStatus = async () => {
       try {
         const productResponse = await api.getProductDetails(params.id);
         setProduct(productResponse);
 
-        const cartResponse = await api.getCart();
+        const cartResponse = await api.getCart(user.id);
         const cartItems = cartResponse.cart || [];
         const isPresent = cartItems.some(
           (item: any) => item.productId === productResponse.id
@@ -53,7 +58,7 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchWishlistStatus = async () => {
       try {
-        const wishlistResponse = await api.getWishlist();
+        const wishlistResponse = await api.getWishlist(user.id);
         const wishlistItems = wishlistResponse.wishlist || [];
         const isPresent = wishlistItems.some(
           (item: any) => item.productId === product?.id
@@ -122,7 +127,7 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   };
 
   if (!product) {
-    return <LoadingPage />;
+    return <SkeletonLoading />;
   }
 
   return (

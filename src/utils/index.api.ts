@@ -49,9 +49,9 @@ getProducts: async () => {
     }
   },
 
-  getCart: async () => {
+  getCart: async (id:string) => {
     try {
-      const response = await axios.get(`${API_URL}/cart/data`, {
+      const response = await axios.get(`${API_URL}/cart/${id}`, {
         headers: { Authorization: authToken },
       });
       return response.data;
@@ -98,9 +98,9 @@ getProducts: async () => {
     }
   },
 
-  getWishlist: async () => {
+  getWishlist: async (id:string) => {
     try {
-      const response = await axios.get(`${API_URL}/wishlist/data`, {
+      const response = await axios.get(`${API_URL}/wishlist/${id}`, {
         headers: { Authorization: authToken },
       });
       return response.data;
@@ -126,7 +126,7 @@ getProducts: async () => {
 
   removeFromWishlist: async (productId: string, ) => {
     try {
-      const response = await axios.delete(`${API_URL}/wishlist/removeone/${productId}`, {
+      const response = await axios.delete(`${API_URL}/wishlist/remove/${productId}`, {
         headers: { "Content-Type": "application/json", Authorization: authToken },
       });
       return response.data;
@@ -136,6 +136,17 @@ getProducts: async () => {
     }
   },
 
+  removeFromCart: async (productId: string, ) => {
+    try {
+      const response = await axios.delete(`${API_URL}/cart/remove/${productId}`, {
+        headers: { "Content-Type": "application/json", Authorization: authToken },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+      throw error;
+    }
+  },
   getUser: async (id:string) => {
     try {
       const response = await axios.get(`${API_URL}/users/${id}`, {

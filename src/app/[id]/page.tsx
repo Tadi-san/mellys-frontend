@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import ItemCard from "@/components/ItemCard";
 import { api } from "@/utils/index.api";
 import Link from "next/link";
-
+import Cookies from "js-cookie";
 // Skeleton Loader for Categories
 const CategorySkeleton = () => (
   <div className="flex flex-col gap-2 justify-start items-center animate-pulse">
@@ -33,19 +33,22 @@ export default function Home() {
 
   // Fetch user data based on `id`
   useEffect(() => {
+
+
     const initializeUser = async (userId: string) => {
       try {
         const user = await api.getUser(userId);
-        localStorage.setItem("UserAuth", JSON.stringify(user));
+        Cookies.set("UserAuth", JSON.stringify(user), { expires: 7 }); // Expires in 7 days
         setUser(user);
-
+    
         // Check if the user is local
         const isLocal = user.phone_number?.startsWith("+251") || false;
-        localStorage.setItem("isLocal", JSON.stringify(isLocal));
+        Cookies.set("isLocal", JSON.stringify(isLocal), { expires: 7 });
       } catch (error) {
         console.error("Error initializing user:", error);
       }
     };
+    
 
     if (id) {
       initializeUser(id);
@@ -88,14 +91,19 @@ export default function Home() {
   // Check if the user is local
   const isLocal = user?.phone_number?.startsWith("+251") || false;
   return (
-    <main className="flex flex-col items-center">
- {isLocal ?    
-  <Link href="/post" className=" absolute top-[50%] right-0  py-3 px-6 bg-black text-white flex flex-col justify-center items-center rounded-tl-lg rounded-bl-lg  ">
-        <span>Post</span>
-      </Link> : null }
+    <main className=" flex flex-col items-center">
 
-      <div className="w-full max-w-screen-2xl">
-        <div className="flex gap-2 justify-around my-5">
+      <div className=" relative w-full max-w-screen-2xl">
+      {isLocal ? (
+      <Link
+        href="/post"
+        className="z-40 sticky top-[50%] right-0.5 py-3 px-3 pr-5 bg-black text-white flex flex-col justify-center w-fit items-center rounded-br-lg rounded-tr-lg"
+      >
+        <span>Post</span>
+      </Link>
+  ) : null}
+
+        <div className="flex gap-2 justify-around mb-5">
           {loadingCategories
             ? Array(8)
                 .fill(0)

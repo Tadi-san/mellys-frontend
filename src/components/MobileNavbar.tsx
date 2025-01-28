@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import HamburgerMenu from "./HamburgerMenu";
 import { useRouter } from "next/navigation";
-import { getProductsList } from "@/utils/getProduct";
 import { setProducts } from "@/lib/store/features/product/productSlice";
 import { useAppDispatch } from "@/lib/store/hooks";
 import Link from "next/link";
@@ -29,6 +28,11 @@ const MobileNavbar = () => {
   const [searchInput, setSearchInput] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [openSearch,setOpenSearch] = useState(false)
+  const getUser = () => {
+    const userCookie = Cookies.get("UserAuth");
+    return userCookie ? JSON.parse(userCookie) : null;
+  };
+  const [user] = useState<any>(getUser);
 
   useEffect(() => {
     const token = Cookies.get("UserAuth");
@@ -49,8 +53,6 @@ const MobileNavbar = () => {
   };
 
   const handleSearch = async () => {
-    const response = await getProductsList(searchInput);
-    dispatch(setProducts(response?.data));
     setSearchInput("");
     router.push(`/search/${searchInput}`);
   };
@@ -60,7 +62,7 @@ const MobileNavbar = () => {
       <ul className="flex justify-between p-2">
         <div className="flex gap-2 justify-center items-center">
           <HamburgerMenu />
-          <Link href="/" className=" flex gap-2 ">
+          <Link href= {`/${user?.id}` || "/"} className=" flex gap-2 ">
             <img
               className="w-6 h-6 object-contain"
               alt="logo"
@@ -77,7 +79,7 @@ const MobileNavbar = () => {
         : <ArrowUpToLine  className =" right-5 text-gray-700 w-5 h-5" /> }
           </button>
         
-          {/* {isAuthenticated ? (
+          {user && (
             <Dialog>
               <DialogTrigger asChild>
                 <User className="w-6 h-6 cursor-pointer" />
@@ -105,11 +107,7 @@ const MobileNavbar = () => {
                 </div>
               </DialogContent>
             </Dialog>
-          ) : (
-            <Link href="/login">
-              <User className="w-6 h-6" />
-            </Link>
-          )} */}
+          ) }
         
           <Link href="/cart">
             <ShoppingCart className="w-6 h-6" />
