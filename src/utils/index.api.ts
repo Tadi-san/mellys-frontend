@@ -150,7 +150,7 @@ getProducts: async () => {
 
   uploadImage: async (formData: FormData, id: string) => {
     try {
-      const response = await axios.post(`${API_URL}/upload/${id}`, formData, {
+      const response = await axios.post(`${API_URL}/uploads/?product_id=${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data", Authorization: authToken },
       });
       return response.data;

@@ -12,10 +12,12 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"; // Use your custom dropdown
 import { api } from "@/utils/index.api";
-import axios from "axios";
+import { useRouter } from "next/navigation";
+
 
 
 const PostProductPage = () => {
+  const router = useRouter();
     const [productData, setProductData] = useState<{
         name: string;
         price: number;
@@ -73,12 +75,13 @@ const colors = [
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-
+ 
 //   const [colors, setColors] = useState(Object.values(Color));
 //   const [sizes] = useState(Object.values(Size));
 
 const handleImageUpload = async (id:string) => {
     const formData = new FormData();
+    
     imageFiles.forEach((file) => {
       formData.append("files", file);
     });
@@ -105,24 +108,16 @@ const handleImageUpload = async (id:string) => {
     formData.append("category_id", String(productData.category));
     formData.append("colors", productData.selectedColors.join(","));
     formData.append("sizes", productData.selectedSizes.join(","));
-  
+    
     try {
+      
       const response = await api.postProducts(formData); // Create product
-      const product:{
-        id:string;
-        name: string;
-        price: number;
-        description: string;
-        stock_quantity: number;
-        selectedColors: string[]; // Explicitly declare that it's an array of strings
-        selectedSizes: string[];
-        category: string;
-        images: object[];
-      } = response.data;
-      console.log("Product created successfully", product);
-  
+      // } = response.data;
+      console.log("Product created successfully", response);
+      await handleImageUpload(response.id); // Call upload image with the created product's ID
+    
+      router.push(`/products/${response.id}`);
       // After product creation, call the upload image function
-      await handleImageUpload(product.id); // Call upload image with the created product's ID
     } catch (error) {
       console.error("Error posting product:", error);
     }

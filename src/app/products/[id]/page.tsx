@@ -127,9 +127,9 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="w-full flex flex-col max-w-screen-2xl mx-auto mt-10">
-      <div className="w-full flex flex-col md:flex-row items-center md:items-start md:gap-2">
-        <div className="flex flex-wrap w-full md:w-3/4">
-          <div className="flex flex-col md:flex-row gap-4 justify-center items-center md:items-start">
+      <div className="w-full flex flex-col md:flex-row  md:items-start md:gap-2">
+        <div className="flex flex-wrap w-full md:w-3/4 justify-center items-center">
+          <div className="flex flex-col md:flex-row gap-4 justify-center items-center md:items-start w-full ">
             <Carousel
               opts={{
                 loop: true,
@@ -140,7 +140,7 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
                 {product.images.map((item: any, index: number) => (
                   <CarouselItem key={index}>
                     <div className="p-1">
-                      <Card className="border-none shadow-none rounded-xl">
+                      <Card className="border-none shadow-none rounded-xl ">
                         <CardContent className="flex items-center justify-center p-2 overflow-hidden">
                           <img
                             src={item.image_url}
@@ -157,7 +157,7 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
               <CarouselNext className="hidden md:inline-flex opacity-60 group-hover:opacity-100 transition-all duration-300 h-10 w-10 bg-gray-200" />
             </Carousel>
 
-            <div className="flex flex-col gap-5 px-6 md:px-2  items-start justify-start w-full ">
+            <div className="flex flex-col gap-5 px-6 md:px-2 items-start justify-start w-full ">
               <div className="font-bold text-xl md:text-4xl mt-2">{isLocal ?`${ product.price * 127}br`: `$${product.price}`}</div>
               <div className="font-bold text-sm md:text-xl">{product.name}</div>
               <div className="text-xs">{product.stock_quantity} items available</div>
