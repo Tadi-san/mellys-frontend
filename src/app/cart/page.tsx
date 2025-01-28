@@ -127,7 +127,7 @@ const CartPage = () => {
                 <div>Total</div>
                 <div>{isLocalUser ?`${ totalCost * 127}br`: `$${totalCost}`}</div>
               </div>
-              <Link href="/checkout" className="w-full px-5 py-3 text-center rounded-3xl bg-red-500 text-white font-bold hover:font-extrabold transition-all duration-300">
+              <Link href="/CheckoutPage" className="w-full px-5 py-3 text-center rounded-3xl bg-red-500 text-white font-bold hover:font-extrabold transition-all duration-300">
                 Checkout ({items.length})
               </Link>
             </CardContent>
