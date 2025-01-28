@@ -117,7 +117,7 @@ const CartPage = () => {
           </CardContent>
         </Card>
 
-        {items.length > 0 && (
+        {items.length > 0 ? (
           <Card className="w-full max-w-sm">
             <CardHeader>
               <CardTitle>Summary</CardTitle>
@@ -132,7 +132,7 @@ const CartPage = () => {
               </Link>
             </CardContent>
           </Card>
-        )}
+        ):<div></div>}
       </div>
     </Suspense>
   );
