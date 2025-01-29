@@ -1,8 +1,8 @@
 import axios from "axios";
 import { get } from "http";
 
-const API_URL = "http://localhost:3002/api";
-// const API_URL = "https://ali-express-clone.onrender.com/api";
+// const API_URL = "http://localhost:3002/api";
+const API_URL = "https://melly-s-fashion-backend.onrender.com/api";
 const authToken = ""
 
 export const api = {
