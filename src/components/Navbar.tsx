@@ -89,7 +89,7 @@ const Navbar = () => {
       router.push("/login");
     }
   };
-
+// notice me vercel
   return (
     <nav className="w-full hidden md:flex flex-col justify-center items-center p-2 sticky top-0 left-0 z-50 bg-[#191919] text-background">
       <ul className="flex gap-2 p-2 w-full max-w-screen-2xl justify-center">
