@@ -12,65 +12,61 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ShoppingCart, Trash } from "lucide-react";
-
+import { api } from "@/utils/index.api";
+import Cookies from "js-cookie"; 
 const WishListPage = () => {
   const [wishlistItems, setWishlistItems] = useState<any>();
 
   const router = useRouter();
+  // const getUser = () => {
+  //   const userCookie = Cookies.get("UserAuth");
+  //   return userCookie ? JSON.parse(userCookie) : null;
+  // };
+  // const [user] = useState<any>(getUser); 
 
-  useEffect(() => {
-    // API call to fetch product details
-    const fetchIsPresentInWishlist = async () => {
-      try {
-        // Fetch product details
-        const response = await axios.get(
-          "https://ali-express-clone.onrender.com/api/wishlist/data",
-          {
-            headers: {
-              Authorization: document.cookie,
-            },
-          }
-        );
-        const data = response.data?.wishlist;
-        const checkItemId = response.data?.item?.proitemId;
+  // useEffect(() => {
+  //   // API call to fetch product details
+  //   const fetchIsPresentInWishlist = async () => {
+  //     try {
+  //       // Fetch product details
+  //       const response = api.getWishlist(user.id);
+  //       const wishlistItems = response;
+  //       // console.log("cartItems : ", cartItems);
+  //       const isPresent = wishlistItems.some(
+  //         (item: any) => item.checkItemId == checkItemId
+  //       );
 
-        const wishlistItems = response.data?.wishlist;
-        // console.log("cartItems : ", cartItems);
-        const isPresent = wishlistItems.some(
-          (item: any) => item.checkItemId == checkItemId
-        );
+  //       console.log("response : ", response);
+  //       console.log("data : ", data);
+  //       console.log("cartItems : ", checkItemId);
 
-        console.log("response : ", response);
-        console.log("data : ", data);
-        console.log("cartItems : ", checkItemId);
+  //       setWishlistItems(data);
+  //     } catch (error) {
+  //       console.error("Error fetching data", error);
+  //     }
+  //   };
 
-        setWishlistItems(data);
-      } catch (error) {
-        console.error("Error fetching data", error);
-      }
-    };
+  //   fetchIsPresentInWishlist();
+  // }, []);
 
-    fetchIsPresentInWishlist();
-  }, []);
-
-  const removeAllProducts = async () => {
-    try {
-      const response = await axios.delete(
-        `https://ali-express-clone.onrender.com/api/cart/removeall`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: document.cookie,
-          },
-        }
-      );
-      console.log("ALL PRODUCTS REMOVED SUCCESSFULLY");
-      const data = response.data?.cart;
-      setWishlistItems(data);
-    } catch (error) {
-      console.log("ERROR : ", error);
-    }
-  };
+  // const removeAllProducts = async () => {
+  //   try {
+  //     const response = await axios.delete(
+  //       `https://ali-express-clone.onrender.com/api/cart/removeall`,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: document.cookie,
+  //         },
+  //       }
+  //     );
+  //     console.log("ALL PRODUCTS REMOVED SUCCESSFULLY");
+  //     const data = response.data?.cart;
+  //     setWishlistItems(data);
+  //   } catch (error) {
+  //     console.log("ERROR : ", error);
+  //   }
+  // };
 
   const handleProductInfo = (item: any) => {
     const id = Number(item.productId);
@@ -86,7 +82,7 @@ const WishListPage = () => {
           </CardTitle>
           {wishlistItems && wishlistItems.length > 0 && (
             <CardDescription className="self-end hover:text-red-500 hover:font-bold transition-all duration-300">
-              <button onClick={removeAllProducts} className="">
+              <button  className="">
                 Remove all products from wishlist
               </button>
             </CardDescription>

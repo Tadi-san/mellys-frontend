@@ -4,8 +4,6 @@ import React, { ReactNode } from "react";
 import { useRef } from "react";
 import { Provider } from "react-redux";
 import { makeStore, AppStore } from "@/lib/store/store";
-import { setProducts } from "@/lib/store/features/product/productSlice";
-import { setCartItems } from "@/lib/store/features/cart/cartSlice";
 
 const StoreProvider = ({ children }: { children: ReactNode }) => {
   const storeRef = useRef<AppStore>();

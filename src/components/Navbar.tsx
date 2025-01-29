@@ -39,27 +39,27 @@ const Navbar = () => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const checkCartQuantity = async () => {
-      try {
-        // Check if the product is in the cart
-        const cartResponse = await axios.get(
-          "https://ali-express-clone.onrender.com/api/cart/data",
-          {
-            headers: {
-              Authorization: document.cookie,
-            },
-          }
-        );
+  // useEffect(() => {
+  //   const checkCartQuantity = async () => {
+  //     try {
+  //       // Check if the product is in the cart
+  //       const cartResponse = await axios.get(
+  //         "https://ali-express-clone.onrender.com/api/cart/data",
+  //         {
+  //           headers: {
+  //             Authorization: document.cookie,
+  //           },
+  //         }
+  //       );
 
-        const cartLength = cartResponse.data?.cart.length;
-        setQuantity(cartLength);
-      } catch (error) {
-        setQuantity(0);
-      }
-    };
-    checkCartQuantity();
-  }, [quantity]);
+  //       const cartLength = cartResponse.data?.cart.length;
+  //       setQuantity(cartLength);
+  //     } catch (error) {
+  //       setQuantity(0);
+  //     }
+  //   };
+  //   checkCartQuantity();
+  // }, [quantity]);
 
   useEffect(() => {
     const token = Cookies.get("UserAuth");

@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import HamburgerMenu from "./HamburgerMenu";
 import { useRouter } from "next/navigation";
-import { setProducts } from "@/lib/store/features/product/productSlice";
 import { useAppDispatch } from "@/lib/store/hooks";
 import Link from "next/link";
 import { HamburberCategory } from "@/config.product";
