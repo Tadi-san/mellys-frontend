@@ -343,3 +343,5 @@ async function getCategories() {
 };
 
 export default PostProductPage;
+
+
