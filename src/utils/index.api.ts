@@ -204,6 +204,19 @@ export const api = {
       throw error;
     }
   },
+  sendOtp: async (phone_number: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/send-otp`, {
+        phone_number,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+
+
 
   login: async (name: string, otp: string, email: string, phoneNumber: string) => {
     try {
@@ -386,5 +399,28 @@ export const api = {
     }
   },
 
-  
+  initiatePayment: async (payloadData: {
+    amount: string;
+    currency: string;
+    referenceNumber: string;
+  }) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/payments/initiate-payment`, // Your payment endpoint
+        payloadData,
+        {
+          headers: { 
+            "Content-Type": "application/json", // Keep as JSON for CyberSource
+            Authorization: AUTH_TOKEN 
+          },
+          responseType: "text" // Important to get raw HTML response
+        }
+      );
+      return response ;
+    } catch (error) {
+      console.error("Error initiating payment:", error);
+      throw error;
+    }
+  }
 };
+

@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export", // Required for static export (Macle expects HTML files)
+  // output: "export", // Required for static export (Macle expects HTML files)
   // distDir: "dist",  // Forces Next.js to output to /dist instead of /.next/out
   images: {
     unoptimized: true, // Required for `output: "export"` (disables Image Optimization API)
