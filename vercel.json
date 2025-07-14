@@ -1,6 +1,5 @@
-       {
-          "rewrites": [
-            { "source": "/(.*)", "destination": "/maintenance.html" },
-            { "source": "/maintenance.html", "destination": "/maintenance.html" }
-          ]
-        }
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/maintenance.html" }
+  ]
+}
