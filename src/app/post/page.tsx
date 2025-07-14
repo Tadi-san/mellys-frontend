@@ -27,6 +27,7 @@ const PostProductPage = () => {
         selectedSizes: string[];
         category: number;
         images: string[];
+        currency: string; // Add currency to the state
       }>({
         name: "",
         price: 0,
@@ -36,6 +37,7 @@ const PostProductPage = () => {
         selectedSizes: [],
         category: 0,
         images: [],
+        currency: "Usd", // Default currency
       });
 
   // Custom array for colors
@@ -67,6 +69,7 @@ const colors = [
 
   // Custom array for sizes
   const sizes = ["S", "M", "L", "XL"];
+  const currencies = ["Eth", "Usd", "Rmb"]; // Add currency options
   interface Category {
     id: number; // Assuming 'id' is a string, change to number if that's the case
     name: string;
@@ -75,7 +78,7 @@ const colors = [
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
- 
+  const [loading, setLoading] = useState(false); // Add loading state
 //   const [colors, setColors] = useState(Object.values(Color));
 //   const [sizes] = useState(Object.values(Size));
 
@@ -100,6 +103,10 @@ const handleImageUpload = async (id: string) => {
 
   
   const handleProductPost = async () => {
+    if (loading) return; // Prevent multiple clicks
+
+    setLoading(true);
+    const tags = ["34567", "345678"]
     const formData = new FormData();
     formData.append("name", productData.name);
     formData.append("price", String(productData.price));
@@ -108,7 +115,8 @@ const handleImageUpload = async (id: string) => {
     formData.append("category_id", String(productData.category));
     formData.append("colors", productData.selectedColors.join(","));
     formData.append("sizes", productData.selectedSizes.join(","));
-    
+    formData.append("currency", productData.currency); // Add currency to the form data 
+    formData.append("tags", tags.join(","))   
     try {
       
       const response = await api.postProducts(formData); // Create product
@@ -121,6 +129,10 @@ const handleImageUpload = async (id: string) => {
     } catch (error) {
       console.error("Error posting product:", error);
     }
+    finally {
+      setLoading(false); // Reset loading state after submission
+    }
+
   };
   
 
@@ -199,6 +211,27 @@ async function getCategories() {
                     setProductData({ ...productData, price: parseFloat(e.target.value) })
                   }
                 />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="product-currency" className="font-semibold">Currency</label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="p-3 rounded-md border-gray-300 border">
+                    {productData.currency || "Select Currency"}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-48">
+                    {currencies.map((currency) => (
+                      <DropdownMenuItem
+                        key={currency}
+                        onClick={() =>
+                          setProductData({ ...productData, currency })
+                        }
+                      >
+                        {currency}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -330,8 +363,13 @@ async function getCategories() {
 
 
               <div className="flex gap-4 justify-center mt-4">
-                <Button onClick={handleProductPost} variant="myBtn" size="mySize">
-                  Post Product
+                <Button
+                  onClick={handleProductPost}
+                  variant="myBtn"
+                  size="mySize"
+                  disabled={loading} // Disable the button when loading
+                >
+                  {loading ? "Posting..." : "Post Product"} {/* Change button text when loading */}
                 </Button>
               </div>
             </CardContent>

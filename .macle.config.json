@@ -1,0 +1,8 @@
+{
+  "buildType": 1,
+  "buildCmd": "npm run build",
+  "buildDist": "c:\\Users\\Tad\\Desktop\\development-mellys-fashion\\melly's fashion front-end\\.next\\out\\",
+  "entryPagePath": "index.html",
+  "appID": "testfour4",
+  "isCompile": false
+}

@@ -3,24 +3,25 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ShoppingCart } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
+// import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/store/store";
-import {
-  setAuthState,
-  selectAuthState,
-} from "@/lib/store/features/auth/authSlice";
+// import {
+//   setAuthState,
+//   selectAuthState,
+// } from "@/lib/store/features/auth/authSlice";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
 import { api } from "@/utils/index.api";
 import { Product } from "@/config.product";
+import Image from "next/image";
 
 const ItemCard = ({ product }: { product: any }) => {
-  const dispatch: AppDispatch = useDispatch();
+  // const dispatch: AppDispatch = useDispatch();
   const [isLocal, setIsLocal] = useState(true)
-  const isAuthenticated = useSelector((state: RootState) =>
-    selectAuthState(state)
-  );
+  // const isAuthenticated = useSelector((state: RootState) =>
+  //   selectAuthState(state)
+  // );
   // const isLocal = useSelector((state: RootState) =>
   //   selectAuthState(state)
   // );
@@ -28,10 +29,10 @@ const ItemCard = ({ product }: { product: any }) => {
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
 
-  useEffect(() => {
-    const token = Cookies.get("UserAuth");
-    dispatch(setAuthState(!!token)); // Update Redux state based on cookie presence
-  }, [dispatch]);
+  // useEffect(() => {
+  //   const token = Cookies.get("UserAuth");
+  //   dispatch(setAuthState(!!token)); // Update Redux state based on cookie presence
+  // }, [dispatch]);
 
   // Check if the product is already in the cart
   // const checkIfProductInCart = async () => {
@@ -79,24 +80,20 @@ const ItemCard = ({ product }: { product: any }) => {
   // };
 
   // Update item quantity in cart
-  const handleUpdateCart = async () => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-    try {
-      await api.updateCart(
-        product.id,
-        quantity,
-      );
-      toast({
-        title: "Cart updated successfully",
-        className: "text-red-600 bg-white hover:bg-gray-100 font-bold",
-      });
-    } catch (error) {
-      console.log("ERROR updating cart : ", error);
-    }
-  };
+  // const handleUpdateCart = async () => {
+  //   try {
+  //     await api.updateCart(
+  //       product.id,
+  //       quantity,
+  //     );
+  //     toast({
+  //       title: "Cart updated successfully",
+  //       className: "text-red-600 bg-white hover:bg-gray-100 font-bold",
+  //     });
+  //   } catch (error) {
+  //     console.log("ERROR updating cart : ", error);
+  //   }
+  // };
 
   return (
     <div
@@ -105,11 +102,15 @@ const ItemCard = ({ product }: { product: any }) => {
     >
       <div className="relative w-[180px] md:w-[250px] h-[260px] md:h-[350px] overflow-hidden group rounded-lg">
         <Link href={`/products/${product.id}`}>
-          <img
-            src={product.images[0]?.image_url || ""}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-300 border rounded-lg"
-          />
+       <Image
+    src={product.images[0]?.image_url || "/placeholder-product.jpg"}
+    alt={product.name || "Product image"}
+    fill
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    className="object-cover transition-transform duration-300 hover:scale-105"
+    quality={85}
+    priority={false} // Set true for above-the-fold images
+  />
         </Link>
       </div>
 

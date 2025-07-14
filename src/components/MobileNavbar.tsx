@@ -1,13 +1,11 @@
 "use client";
 
-import { ArrowUpToLine, Copy, Menu, Search, ShoppingCart, User } from "lucide-react";
+import { ArrowUpToLine, Search, ShoppingCart, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import HamburgerMenu from "./HamburgerMenu";
 import { useRouter } from "next/navigation";
-import { useAppDispatch } from "@/lib/store/hooks";
 import Link from "next/link";
-import { HamburberCategory } from "@/config.product";
 import Cookies from "js-cookie";
 import {
   Dialog,
@@ -20,22 +18,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
+import Image from "next/image";
 
 const MobileNavbar = () => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [openSearch,setOpenSearch] = useState(false)
-  const getUser = () => {
-    const userCookie = Cookies.get("UserAuth");
-    return userCookie ? JSON.parse(userCookie) : null;
-  };
-  const [user] = useState<any>(getUser);
+  const [openSearch, setOpenSearch] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [isMounted, setIsMounted] = useState(false); // Track if component has mounted
 
   useEffect(() => {
-    const token = Cookies.get("UserAuth");
-    setIsAuthenticated(!!token);
+    setIsMounted(true); // Set mounted to true after hydration
+    const userCookie = Cookies.get("UserAuth");
+    setUser(userCookie ? JSON.parse(userCookie) : null);
+    setIsAuthenticated(!!userCookie);
   }, []);
 
   const handleSignOut = () => {
@@ -56,28 +53,38 @@ const MobileNavbar = () => {
     router.push(`/search/${searchInput}`);
   };
 
+  // Don't render anything until the component has mounted
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <nav className="flex md:hidden flex-col w-full p-2 sticky top-0 left-0 z-50 bg-background">
       <ul className="flex justify-between p-2">
         <div className="flex gap-2 justify-center items-center">
           <HamburgerMenu />
-          <Link href= {`/${user?.id}` || "/"} className=" flex gap-2 ">
-            <img
-              className="w-6 h-6 object-contain"
-              alt="logo"
-              src="/logo.jpg"
-            />
-            <span className=" text-black ">Mellys</span>
+          <Link href={`/${user?.id}` || "/"} className="flex gap-2">
+           <Image
+    src="/ZoomFashion.png"
+    alt="Zoom Fashion logo"
+    fill
+    sizes="24px" // w-6 = 24px (6×4)
+    className="object-contain"
+    quality={90} // Higher quality for logos
+    priority={true} // Logos are usually important
+  />
+            <span className="text-black">Mellys</span>
           </Link>
         </div>
         <div className="flex gap-4 justify-center items-center">
-        
-        <button onClick={()=> setOpenSearch(!openSearch)}>
-          {!openSearch?
-          <Search className=" right-5 text-gray-700 w-5 h-5" />
-        : <ArrowUpToLine  className =" right-5 text-gray-700 w-5 h-5" /> }
+          <button onClick={() => setOpenSearch(!openSearch)}>
+            {!openSearch ? (
+              <Search className="right-5 text-gray-700 w-5 h-5" />
+            ) : (
+              <ArrowUpToLine className="right-5 text-gray-700 w-5 h-5" />
+            )}
           </button>
-        
+
           {user && (
             <Dialog>
               <DialogTrigger asChild>
@@ -87,7 +94,7 @@ const MobileNavbar = () => {
                 <DialogHeader>
                   <DialogTitle>Sign Out</DialogTitle>
                   <DialogDescription className="">
-                    You will we returned to login screen
+                    You will be returned to the login screen
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex gap-4">
@@ -106,26 +113,25 @@ const MobileNavbar = () => {
                 </div>
               </DialogContent>
             </Dialog>
-          ) }
-        
+          )}
+
           <Link href="/cart">
             <ShoppingCart className="w-6 h-6" />
           </Link>
         </div>
       </ul>
-      
-      {openSearch && (
 
-      <div className="w-full p-2 relative">
-        <Input
-          className="rounded-full bg-gray-200 text-black px-4"
-          placeholder="mellys styles"
-          onChange={handleSearchChange}
-        />
-        <button onClick={handleSearch}>
-          <Search className="absolute top-[18px] right-5 text-gray-700 w-5 h-5" />
-        </button>
-      </div>
+      {openSearch && (
+        <div className="w-full p-2 relative">
+          <Input
+            className="rounded-full bg-gray-200 text-black px-4"
+            placeholder="mellys styles"
+            onChange={handleSearchChange}
+          />
+          <button onClick={handleSearch}>
+            <Search className="absolute top-[18px] right-5 text-gray-700 w-5 h-5" />
+          </button>
+        </div>
       )}
     </nav>
   );

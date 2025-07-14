@@ -20,6 +20,7 @@ import LoadingPage from "@/app/loading";
 import { api } from "@/utils/index.api";
 import SkeletonLoading from "@/components/singleProductSkeletonLoading";
 import Cookies from "js-cookie";
+import Image from "next/image";
 const ProductDescription = ({ params }: { params: { id: string } }) => {
   const { toast } = useToast();
   const [product, setProduct] = useState<any>(null);
@@ -53,15 +54,15 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
     };
 
     fetchProductDetailsAndCartStatus();
-  }, [params.id]);
+  }, [params.id, user?.id]);
 
   useEffect(() => {
     const fetchWishlistStatus = async () => {
       try {
         const wishlistResponse = await api.getWishlist(user.id);
-        const wishlistItems = wishlistResponse.wishlist || [];
+        const wishlistItems = wishlistResponse || [];
         const isPresent = wishlistItems.some(
-          (item: any) => item.productId === product?.id
+          (item: any) => item.product_id === product?.id
         );
         setIsAddedToWishlist(isPresent);
       } catch (error) {
@@ -70,7 +71,7 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
     };
 
     fetchWishlistStatus();
-  }, [product]);
+  }, [product, user?.id]);
 
   const handleAddToCart = async () => {
     try {
@@ -86,7 +87,8 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
         product.images[0].image_url,
         quantity,
         selectedSize,
-        selectedColor
+        selectedColor,
+        user.id
       );
       setIsInCart(true);
     } catch (error) {
@@ -106,24 +108,39 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   const handleWishList = async () => {
     if (isAddedToWishlist) {
       try {
-        await api.removeFromWishlist(product.id);
+        await api.removeFromWishlist(product.id, user.id);
         setIsAddedToWishlist(false);
       } catch (error) {
         console.error("Error removing from wishlist:", error);
       }
     } else {
       try {
-        await api.addToWishlist(
-          product.id,
-          product.name,
-          product.price,
-          product.images[0].image_url
-        );
+        await api.addToWishlist(user.id, product.id );
         setIsAddedToWishlist(true);
       } catch (error) {
         console.error("Error adding to wishlist:", error);
       }
     }
+  };
+
+  const handleCopyLink = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard
+      .writeText(currentUrl)
+      .then(() => {
+        toast({
+          title: "Link copied!",
+          description: "The link has been copied to your clipboard.",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to copy link:", error);
+        toast({
+          title: "Error",
+          description: "Failed to copy the link. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
 
   if (!product) {
@@ -147,11 +164,14 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
                     <div className="p-1">
                       <Card className="border-none shadow-none rounded-xl ">
                         <CardContent className="flex items-center justify-center p-2 overflow-hidden">
-                          <img
-                            src={item.image_url}
-                            alt="Product image"
-                            className="w-full h-[450px] object-cover rounded-xl hover:scale-110 transition-transform duration-300"
-                          />
+  <Image
+    src={item.image_url}
+    alt="Product image"
+    fill
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    className="object-cover group-hover:scale-110 transition-transform duration-300"
+    quality={85}
+  />
                         </CardContent>
                       </Card>
                     </div>
@@ -281,9 +301,12 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
               )}
 
               <div className="flex justify-center items-center gap-5 ">
-                <button className="rounded-3xl p-3 bg-accent w-1/2 flex justify-center group hover:scale-105 transition-all duration-300">
-                  <Share2 className="w-5 h-5  group-hover:scale-105 transition-all duration-300" />
-                </button>
+              <button
+        onClick={handleCopyLink}
+        className="rounded-3xl p-3 bg-accent w-1/2 flex justify-center group hover:scale-105 transition-all duration-300"
+      >
+        <Share2 className="w-5 h-5 group-hover:scale-105 transition-all duration-300" />
+      </button>
                 <button
                   onClick={() => handleWishList()}
                   className="rounded-3xl p-3 bg-accent w-1/2 flex justify-center group hover:scale-105 transition-all duration-300"
@@ -291,6 +314,7 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
                   {isAddedToWishlist ? (
                     <Heart
                       fill="red"
+                      stroke="red"
                       className="w-5 h-5 group-hover:scale-105 transition-all duration-300"
                     />
                   ) : (
@@ -409,11 +433,14 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
                 <CardContent className="flex flex-wrap md:grid md:grid-cols-3 md:gap-4 w-full">
                 {product.images.slice(1).map((src: any, index: any) => (
   <div key={index} className="">
-    <img
-      src={src}
-      alt="img"
-      className="w-[420px] h-[400px] object-contain"
-    />
+<Image
+    src={src}
+    alt="img"
+    fill
+    sizes="420px"
+    className="object-contain"
+    quality={85}
+  />
   </div>
 ))}
 

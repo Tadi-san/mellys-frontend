@@ -1,141 +1,80 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import ItemCard from "@/components/ItemCard";
-import { api } from "@/utils/index.api";
-import Link from "next/link";
-import Cookies from "js-cookie";
-// Skeleton Loader for Categories
-const CategorySkeleton = () => (
-  <div className="flex flex-col gap-2 justify-start items-center animate-pulse">
-    <div className="w-12 h-12 bg-gray-300 rounded-full" />
-    <div className="w-20 h-4 bg-gray-300 rounded" />
-  </div>
-);
+import { ChevronsUpDown } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import axios from "axios";
+import Loading from "@/components/Loading";
+import { useSearchParams } from "next/navigation";
 
-// Skeleton Loader for Products
-const ProductSkeleton = () => (
-  <div className="flex flex-col gap-2 md:gap-0 group hover:border hover:shadow-lg relative w-[180px] md:w-[250px] h-[260px] md:h-[350px] overflow-hidden group rounded-lg animate-pulse">
-    <div className="relative w-full h-full bg-gray-300" />
-    <div className="w-24 h-4 bg-gray-300 rounded mt-4 mb-1 mx-2" />
-    <div className="w-16 h-6 bg-gray-300 rounded mt-2 mx-2" />
-  </div>
-);
+const ProductList = () => {
+  const [products, setProducts] = useState<any>();
+  const [name, setName] = useState("");
+  const searchParams = useSearchParams();
 
-export default function Home() {
-  const { id } = useParams<any>();
-  const [user, setUser] = useState<any>(null);
-  const [products, setProducts] = useState<any>([]);
-  const [categories, setCategories] = useState<any>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-
-  // Fetch user data based on `id`
   useEffect(() => {
+    const fetchProducts = async () => {
+      const searchQuery = searchParams.get("name");
+      if (!searchQuery) return;
 
+      console.log("SEARCH QUERY : ", searchQuery);
 
-    const initializeUser = async (userId: string) => {
       try {
-        const user = await api.getUser(userId);
-        Cookies.set("UserAuth", JSON.stringify(user), { expires: 7 }); // Expires in 7 days
-        setUser(user);
-    
-        // Check if the user is local
-        const isLocal = user.phone_number?.startsWith("+251") || false;
-        Cookies.set("isLocal", JSON.stringify(isLocal), { expires: 7 });
+        const response = await axios.get(
+          `https://ali-express-clone.onrender.com/api/category/${searchQuery}`
+        );
+        console.log("List : ", response.data?.result);
+        setProducts(response.data?.result?.resultList);
+        setName(response.data?.result?.base?.q || searchQuery);
       } catch (error) {
-        console.error("Error initializing user:", error);
+        console.error(error);
       }
     };
-    
 
-    if (id) {
-      initializeUser(id);
+    const searchQuery = searchParams.get("name");
+    if (searchQuery) {
+      setName(searchQuery);
+      fetchProducts();
     }
-  }, [id]);
+  }, [searchParams]);
 
-  // Fetch categories and products
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoriesResponse, productsResponse] = await Promise.all([
-          api.getCategories(),
-          api.getProducts(),
-        ]);
+  if (!products) {
+    return <Loading />;
+  }
 
-        // Filter and map categories
-        const refinedCategories = categoriesResponse
-          .filter((category: any) => category.parentId === null)
-          .map((category: any) => ({
-            id: category.id,
-            name: category.name,
-            img: category.images.length > 0 ? category.images[0].image_url : "",
-          }))
-          .slice(0, 8);
-        setCategories(refinedCategories);
-
-        // Set products
-        setProducts(productsResponse);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoadingCategories(false);
-        setLoadingProducts(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Check if the user is local
-  const isLocal = user?.phone_number?.startsWith("+251") || false;
   return (
-    <main className=" flex flex-col items-center">
+    <div className="w-full max-w-screen-xl mx-auto md:mt-10">
+      <div className="block md:hidden text-center font-bold text-xl">
+        {name}
+      </div>
 
-      <div className=" relative w-full max-w-screen-2xl">
-      {isLocal ? (
-      <Link
-        href="/post"
-        className="z-40 sticky top-[50%] right-0.5 py-3 px-3 pr-5 bg-black text-white flex flex-col justify-center w-fit items-center rounded-br-lg rounded-tr-lg"
-      >
-        <span>Post</span>
-      </Link>
-  ) : null}
-
-        <div className="flex gap-2 justify-around mb-5">
-          {loadingCategories
-            ? Array(8)
-                .fill(0)
-                .map((_, index) => <CategorySkeleton key={index} />)
-            : categories.map((item: any) => (
-                <Link
-                  href={`/search/${item.name}`}
-                  key={item.id}
-                  className="flex flex-col gap-1 justify-start items-center"
-                >
-                  <img
-                    src={item.img}
-                    alt="img"
-                    className="w-12 h-12 object-contain rounded-full"
-                  />
-                  <div className="text-xs text-start">{item.name}</div>
-                </Link>
-              ))}
-        </div>
-        <div className="flex flex-wrap gap-y-5 gap-x-2 md:gap-10 justify-center">
-          {loadingProducts
-            ? Array(8)
-                .fill(0)
-                .map((_, index) => <ProductSkeleton key={index} />)
-            : products &&
-              products.map((product: any, index: number) => (
-                <div key={index}>
-                  <ItemCard product={product} />
-                </div>
-              ))}
+      <div className="hidden md:flex justify-between items-center text-sm">
+        <div className="text-2xl font-bold">{name}:</div>
+        <div className="flex gap-2 items-center">
+          <p>Sort by:</p>
+          <div className="flex justify-center items-center gap-5 border rounded-3xl px-4 py-2">
+            <button className="">Best Match</button>
+            <Separator className="h-6" orientation="vertical" />
+            <button className="">Orders</button>
+            <Separator className="h-6" orientation="vertical" />
+            <button className="flex justify-center items-center">
+              <span>Prices</span>
+              <ChevronsUpDown className="w-4 h-4 ml-2" />
+            </button>
+          </div>
         </div>
       </div>
-    </main>
+
+      <div className="w-full max-w-screen-xl flex flex-wrap gap-5 justify-center md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4 mt-5">
+        {products.map((product: any, index: number) => (
+          <div key={index}>
+            <ItemCard product={product} />
+          </div>
+        ))}
+      </div>
+    </div>
   );
-}
+};
+
+export default ProductList;
