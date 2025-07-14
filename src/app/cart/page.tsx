@@ -12,18 +12,18 @@ import {
 } from "@/components/ui/card";
 import { ShoppingCart, Trash } from "lucide-react";
 import { api } from "@/utils/index.api";
-<<<<<<< HEAD
 import { toast } from "@/components/ui/use-toast";
-=======
-import Image from "next/image";
+import { isAuthenticated, setUser } from "@/utils/auth";
 import LoginModal from "@/components/auth/LoginModal";
-import { getUser, isAuthenticated } from "@/utils/auth";
->>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
 
 const CartPage = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [items, setItems] = useState<any[]>([]); // Initialize as an empty array
-  const [user, setUser] = useState<any>(getUser());
+  const getUser = () => {
+    const userCookie = Cookies.get("UserAuth");
+    return userCookie ? JSON.parse(userCookie) : null;
+  };
+  const [user] = useState<any>(getUser);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const isLocal = () => {
     const userCookie = Cookies.get("isLocal");
@@ -32,7 +32,6 @@ const CartPage = () => {
   const [isLocalUser] = useState<any>(isLocal);
   const router = useRouter();
 
-<<<<<<< HEAD
 
 
 // In your useEffect for fetching cart:
@@ -46,17 +45,6 @@ useEffect(() => {
       console.log("ERROR:", error);
     }
   };
-=======
-  useEffect(() => {
-    const fetchCartDetails = async () => {
-      try {
-        const data = await api.getCart(user?.id);
-        setItems(data); // Set the items directly from the API response
-      } catch (error) {
-        console.log("ERROR:", error);
-      }
-    };
->>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
 
   fetchCartDetails();
 }, []); // Remove user.id from dependencies
@@ -83,7 +71,6 @@ const removeProductById = async (item: any) => {
     setTotalCost(cost);
   }, [items]);
 
-<<<<<<< HEAD
 
   // const removeProductById = async (item: any) => {
   //   const id = item?.id; // Use product_id to remove
@@ -94,17 +81,6 @@ const removeProductById = async (item: any) => {
   //     console.log("ERROR:", error);
   //   }
   // };
-=======
-  const removeProductById = async (item: any) => {
-    const id = item?.id; // Use the cart item ID to remove
-    try {
-      await api.removeFromCart(id);
-      setItems((prevItems: any[]) => prevItems.filter((i: any) => i.id !== id));
-    } catch (error) {
-      console.log("ERROR:", error);
-    }
-  };
->>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
 
   const handleProductInfo = (item: any) => {
     const id = item?.product.id; // Use the product ID for navigation
@@ -142,10 +118,9 @@ const removeProductById = async (item: any) => {
                   {/* Product Image */}
                   {item.product.images && item.product.images.length > 0 && (
                     <div className="w-24 h-24 flex-shrink-0 relative">
-                       <Image
+                       <img
     src={item.product.images[0].image_url}
     alt={item.product.name}
-    fill
     className="object-cover rounded-lg"
     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
   />

@@ -74,7 +74,6 @@ const MobileNavbar = () => {
       <ul className="flex justify-between p-2">
         <div className="flex gap-2 justify-center items-center">
           <HamburgerMenu />
-<<<<<<< HEAD
           <Link href= { "/"} className=" flex gap-2 ">
             <img
               className="w-6 h-6 object-contain"
@@ -82,19 +81,6 @@ const MobileNavbar = () => {
               src="/logo.jpg"
             />
             <span className=" text-black ">Mellys</span>
-=======
-          <Link href={`/${user?.id}` || "/"} className="flex gap-2">
-           <Image
-    src="/ZoomFashion.png"
-    alt="Zoom Fashion logo"
-    fill
-    sizes="24px" // w-6 = 24px (6×4)
-    className="object-contain"
-    quality={90} // Higher quality for logos
-    priority={true} // Logos are usually important
-  />
-            <span className="text-black">Mellys</span>
->>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
           </Link>
         </div>
         <div className="flex gap-4 justify-center items-center">

@@ -75,36 +75,11 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
     }
   }, [product, user?.id]);
 
-<<<<<<< HEAD
 const handleAddToCart = async () => {
   try {
     if (!selectedColor || !selectedSize) {
       toast({ title: "Error", description: "Please select a color and size." });
       return;
-=======
-  const handleAddToCart = async () => {
-    try {
-      if (!selectedColor || !selectedSize) {
-        toast({ title: "Error", description: "Please select a color and size." });
-        return;
-      }
-
-      await api.addToCart(
-        product.id,
-        product.name,
-        product.price,
-        product.images[0].image_url,
-        quantity,
-        selectedSize,
-        selectedColor,
-        user?.id
-      );
-      setIsInCart(true);
-      toast({ title: "Success", description: "Item added to cart successfully." });
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast({ title: "Error", description: "Failed to add item to cart." });
->>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
     }
 
     const user = getUser(); // Get fresh user data
@@ -136,7 +111,6 @@ const handleAddToCart = async () => {
     }
   };
 
-<<<<<<< HEAD
 const handleWishList = async () => {
   const user = getUser(); // Get fresh user data
   if (isAddedToWishlist) {
@@ -147,32 +121,6 @@ const handleWishList = async () => {
     } catch (error) {
       console.error("Error removing from wishlist:", error);
       toast({ title: "Error", description: "Failed to remove from wishlist." });
-=======
-  const handleWishList = async () => {
-    if (!isAuthenticated()) {
-      setShowLoginModal(true);
-      return;
-    }
-
-    if (isAddedToWishlist) {
-      try {
-        await api.removeFromWishlist(product.id, user.id);
-        setIsAddedToWishlist(false);
-        toast({ title: "Success", description: "Removed from wishlist." });
-      } catch (error) {
-        console.error("Error removing from wishlist:", error);
-        toast({ title: "Error", description: "Failed to remove from wishlist." });
-      }
-    } else {
-      try {
-        await api.addToWishlist(user.id, product.id );
-        setIsAddedToWishlist(true);
-        toast({ title: "Success", description: "Added to wishlist." });
-      } catch (error) {
-        console.error("Error adding to wishlist:", error);
-        toast({ title: "Error", description: "Failed to add to wishlist." });
-      }
->>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
     }
   } else {
     try {
