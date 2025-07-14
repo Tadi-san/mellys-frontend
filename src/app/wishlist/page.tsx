@@ -14,8 +14,14 @@ import {
 import { ShoppingCart, Trash } from "lucide-react";
 import { api } from "@/utils/index.api";
 import Cookies from "js-cookie"; 
+import { toast } from "@/components/ui/use-toast";
 const WishListPage = () => {
   const [wishlistItems, setWishlistItems] = useState<any>();
+  const getUser = () => {
+    const userCookie = Cookies.get("UserAuth");
+    return userCookie ? JSON.parse(userCookie) : null;
+  };
+  const [user] = useState<any>(getUser);
 
   const router = useRouter();
   // const getUser = () => {
@@ -67,6 +73,32 @@ const WishListPage = () => {
   //     console.log("ERROR : ", error);
   //   }
   // };
+  useEffect(() => {
+  const fetchWishlistItems = async () => {
+    try {
+      const user = getUser(); // Get fresh user data
+      const response = await api.getWishlist(user?.id || null);
+      setWishlistItems(response.wishlist || []);
+    } catch (error) {
+      console.error("Error fetching wishlist", error);
+    }
+  };
+
+  fetchWishlistItems();
+}, []);
+
+// Add remove function:
+const removeFromWishlist = async (productId: string) => {
+  try {
+    const user = getUser(); // Get fresh user data
+    await api.removeFromWishlist(user?.id || null, productId);
+    setWishlistItems((prev: any) => prev.filter((item: any) => item.productId !== productId));
+    toast({ title: "Success", description: "Removed from wishlist!" });
+  } catch (error) {
+    console.error("Error removing from wishlist:", error);
+    toast({ title: "Error", description: "Failed to remove from wishlist." });
+  }
+};
 
   const handleProductInfo = (item: any) => {
     const id = Number(item.productId);
@@ -112,9 +144,12 @@ const WishListPage = () => {
                 <button className="bg-accent py-2 px-4 rounded-lg hover:font-bold transition-all duration-300">
                   Move to cart
                 </button>
-                <button className="py-2 px-2 rounded-lg">
-                  <Trash className="w-6 h-6 hover:text-red-500 transition-all duration-300" />
-                </button>
+<button 
+  onClick={() => removeFromWishlist(item.productId)} 
+  className="py-2 px-2 rounded-lg"
+>
+  <Trash className="w-6 h-6 hover:text-red-500 transition-all duration-300" />
+</button>
               </div>
             ))
           ) : (

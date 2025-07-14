@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { ShoppingCart, Trash } from "lucide-react";
 import { api } from "@/utils/index.api";
+import { toast } from "@/components/ui/use-toast";
 
 const CartPage = () => {
   const [totalCost, setTotalCost] = useState(0);
@@ -32,18 +33,34 @@ const CartPage = () => {
 
 
 
-  useEffect(() => {
-    const fetchCartDetails = async () => {
-      try {
-        const data = await api.getCart(user.id);
-        setItems(data);
-      } catch (error) {
-        console.log("ERROR:", error);
-      }
-    };
+// In your useEffect for fetching cart:
+useEffect(() => {
+  const fetchCartDetails = async () => {
+    try {
+      const user = getUser(); // Get fresh user data
+      const data = await api.getCart(user?.id || null);
+      setItems(data.cart || []);
+    } catch (error) {
+      console.log("ERROR:", error);
+    }
+  };
 
-    fetchCartDetails();
-  }, [user?.id]);
+  fetchCartDetails();
+}, []); // Remove user.id from dependencies
+
+// In your removeProductById function:
+const removeProductById = async (item: any) => {
+  const id = item?.id;
+  const user = getUser(); // Get fresh user data
+  try {
+    await api.removeFromCart(user?.id || null, id);
+    setItems((prevItems: any) => prevItems.filter((i: any) => i.id !== id));
+    toast({ title: "Success", description: "Item removed from cart!" });
+  } catch (error) {
+    console.log("ERROR:", error);
+    toast({ title: "Error", description: "Failed to remove item from cart." });
+  }
+};
 
   useEffect(() => {
     let cost = 0;
@@ -54,15 +71,15 @@ const CartPage = () => {
   }, [items]);
 
 
-  const removeProductById = async (item: any) => {
-    const id = item?.id; // Use product_id to remove
-    try {
-      await api.removeFromCart(id);
-      setItems((prevItems:any) => prevItems.filter((i: any) => i.id !== id));
-    } catch (error) {
-      console.log("ERROR:", error);
-    }
-  };
+  // const removeProductById = async (item: any) => {
+  //   const id = item?.id; // Use product_id to remove
+  //   try {
+  //     await api.removeFromCart(id);
+  //     setItems((prevItems:any) => prevItems.filter((i: any) => i.id !== id));
+  //   } catch (error) {
+  //     console.log("ERROR:", error);
+  //   }
+  // };
 
   const handleProductInfo = (item: any) => {
     const id = item?.id;

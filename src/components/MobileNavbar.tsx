@@ -61,7 +61,7 @@ const MobileNavbar = () => {
       <ul className="flex justify-between p-2">
         <div className="flex gap-2 justify-center items-center">
           <HamburgerMenu />
-          <Link href= {`/${user?.id}` || "/"} className=" flex gap-2 ">
+          <Link href= { "/"} className=" flex gap-2 ">
             <img
               className="w-6 h-6 object-contain"
               alt="logo"

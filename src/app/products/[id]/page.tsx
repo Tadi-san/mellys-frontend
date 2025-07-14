@@ -35,22 +35,23 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   };
   const [user] = useState<any>(getUser);
   useEffect(() => {
-    const fetchProductDetailsAndCartStatus = async () => {
-      try {
-        const productResponse = await api.getProductDetails(params.id);
-        setProduct(productResponse);
+   const fetchProductDetailsAndCartStatus = async () => {
+  try {
+    const productResponse = await api.getProductDetails(params.id);
+    setProduct(productResponse);
 
-        const cartResponse = await api.getCart(user.id);
-        const cartItems = cartResponse.cart || [];
-        const isPresent = cartItems.some(
-          (item: any) => item.productId === productResponse.id
-        );
-        setIsInCart(isPresent);
-        setQuantity(isPresent ? cartItems[0]?.quantity : 1);
-      } catch (error) {
-        console.error("Error fetching product details and cart status:", error);
-      }
-    };
+    const user = getUser(); // Get fresh user data
+    const cartResponse = await api.getCart(user?.id || null);
+    const cartItems = cartResponse.cart || [];
+    const isPresent = cartItems.some(
+      (item: any) => item.productId === productResponse.id
+    );
+    setIsInCart(isPresent);
+    setQuantity(isPresent ? cartItems.find((item: any) => item.productId === productResponse.id)?.quantity || 1 : 1);
+  } catch (error) {
+    console.error("Error fetching product details and cart status:", error);
+  }
+};
 
     fetchProductDetailsAndCartStatus();
   }, [params.id]);
@@ -72,27 +73,32 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
     fetchWishlistStatus();
   }, [product]);
 
-  const handleAddToCart = async () => {
-    try {
-      if (!selectedColor || !selectedSize) {
-        toast({ title: "Error", description: "Please select a color and size." });
-        return;
-      }
-
-      await api.addToCart(
-        product.id,
-        product.name,
-        product.price,
-        product.images[0].image_url,
-        quantity,
-        selectedSize,
-        selectedColor
-      );
-      setIsInCart(true);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
+const handleAddToCart = async () => {
+  try {
+    if (!selectedColor || !selectedSize) {
+      toast({ title: "Error", description: "Please select a color and size." });
+      return;
     }
-  };
+
+    const user = getUser(); // Get fresh user data
+    await api.addToCart(
+      user?.id || null,
+      product.id,
+      product.name,
+      product.price,
+      product.images[0].image_url,
+      quantity,
+      selectedSize,
+      selectedColor
+    );
+    setIsInCart(true);
+    toast({ title: "Success", description: "Item added to cart!" });
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    toast({ title: "Error", description: "Failed to add item to cart." });
+  }
+};
+
 
   const handleUpdateCart = async () => {
     try {
@@ -103,28 +109,34 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  const handleWishList = async () => {
-    if (isAddedToWishlist) {
-      try {
-        await api.removeFromWishlist(product.id);
-        setIsAddedToWishlist(false);
-      } catch (error) {
-        console.error("Error removing from wishlist:", error);
-      }
-    } else {
-      try {
-        await api.addToWishlist(
-          product.id,
-          product.name,
-          product.price,
-          product.images[0].image_url
-        );
-        setIsAddedToWishlist(true);
-      } catch (error) {
-        console.error("Error adding to wishlist:", error);
-      }
+const handleWishList = async () => {
+  const user = getUser(); // Get fresh user data
+  if (isAddedToWishlist) {
+    try {
+      await api.removeFromWishlist(user?.id || null, product.id);
+      setIsAddedToWishlist(false);
+      toast({ title: "Success", description: "Removed from wishlist!" });
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+      toast({ title: "Error", description: "Failed to remove from wishlist." });
     }
-  };
+  } else {
+    try {
+      await api.addToWishlist(
+        user?.id || null,
+        product.id,
+        product.name,
+        product.price,
+        product.images[0].image_url
+      );
+      setIsAddedToWishlist(true);
+      toast({ title: "Success", description: "Added to wishlist!" });
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      toast({ title: "Error", description: "Failed to add to wishlist." });
+    }
+  }
+};
 
   if (!product) {
     return <SkeletonLoading />;
