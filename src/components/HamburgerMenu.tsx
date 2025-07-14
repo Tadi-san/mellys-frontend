@@ -14,6 +14,7 @@ import { Menu } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { api } from "@/utils/index.api";
+import Image from "next/image";
 // import api from "@/api/index.api";
 const HamburgerMenu = () => {
   const [data, setData] = useState<any>([]);
@@ -53,11 +54,14 @@ const HamburgerMenu = () => {
             {data.map((item: any) => (
               <Link href={`/search/${item.name}`} key={item.id} className="">
                 <SheetClose className="flex gap-5 justify-start items-center">
-                  <img
-                    src={item.img}
-                    alt="img"
-                    className="w-12 h-12 object-contain rounded-lg"
-                  />
+              <Image
+    src={item.img}
+    alt={item.name || "Product thumbnail"} // More descriptive alt text
+    fill
+    sizes="48px" // w-12 = 48px (12×4)
+    className="object-contain rounded-lg"
+    quality={80} // Slightly higher quality for small images
+  />
                   <div className="text-xl text-start">{item.name}</div>
                 </SheetClose>
               </Link>

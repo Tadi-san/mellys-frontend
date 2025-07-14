@@ -12,7 +12,6 @@ import { ProductsCategory } from "@/config.product";
 import { ScrollArea } from "./ui/scroll-area";
 import axios from "axios";
 import { useAppDispatch } from "@/lib/store/hooks";
-import { setProducts } from "@/lib/store/features/product/productSlice";
 import { useRouter } from "next/navigation";
 
 type ProductItem = {
@@ -34,18 +33,18 @@ export function MyDropdownMenu() {
   const [data, setData] = useState<ProductCategory[]>([]);
 
   // Get Items from API
-  const handleItemList = async (name: string | null) => {
-    const response = await axios.get(
-      `https://ali-express-clone.onrender.com/api/category/${name}`
-    );
-    dispatch(setProducts(response?.data));
+  // const handleItemList = async (name: string | null) => {
+  //   const response = await axios.get(
+  //     `https://ali-express-clone.onrender.com/api/category/${name}`
+  //   );
+  //   dispatch(setProducts(response?.data));
 
-    //TODO : REMOVE
-    console.log("Name : ", name);
-    console.log("Adding to store!", response);
+  //   //TODO : REMOVE
+  //   console.log("Name : ", name);
+  //   console.log("Adding to store!", response);
 
-    router.push(`/search/${name}`);
-  };
+  //   router.push(`/search/${name}`);
+  // };
 
   useEffect(() => {
     setData(productsCategory);
@@ -91,7 +90,7 @@ export function MyDropdownMenu() {
                         {item.list.map((listItem, index) => (
                           <div key={index}>
                             <button
-                              onClick={() => handleItemList(listItem.name)}
+                              // onClick={() => handleItemList(listItem.name)}
                               key={index}
                               className="w-full text-start hover:text-red-500 rounded-md text-sm"
                             >

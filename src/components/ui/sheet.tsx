@@ -6,6 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Home, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const Sheet = SheetPrimitive.Root;
 
@@ -67,11 +68,15 @@ const SheetContent = React.forwardRef<
       {children}
       <SheetPrimitive.Close className="flex justify-center items-center gap-2 absolute left-5 top-5 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
         <Home className="h-6 w-6 mr-2" />
-  <img
-  className="w-6 h-6 object-contain"
-  alt="logo"
-  src="/logo.jpg"
-/>
+<Image
+    src="/ZoomFashion.png"
+    alt="Zoom Fashion logo"
+    fill
+    sizes="24px" // w-6 = 24px (6×4)
+    className="object-contain"
+    quality={100} // Maximum quality for logos
+    priority={true} // Critical above-the-fold image
+  />
         <span className=" text-black">Mellys</span>
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>

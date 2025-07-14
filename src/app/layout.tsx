@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import StoreProvider from "./StoreProvider";
 import MobileNavbar from "@/components/MobileNavbar";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -21,12 +19,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StoreProvider>
-          {/* <Navbar /> */}
           <MobileNavbar />
           {children}
           <Toaster />
-        </StoreProvider>
       </body>
     </html>
   );

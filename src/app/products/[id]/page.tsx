@@ -20,6 +20,9 @@ import LoadingPage from "@/app/loading";
 import { api } from "@/utils/index.api";
 import SkeletonLoading from "@/components/singleProductSkeletonLoading";
 import Cookies from "js-cookie";
+import Image from "next/image";
+import LoginModal from "@/components/auth/LoginModal";
+import { getUser, isAuthenticated } from "@/utils/auth";
 const ProductDescription = ({ params }: { params: { id: string } }) => {
   const { toast } = useToast();
   const [product, setProduct] = useState<any>(null);
@@ -29,11 +32,8 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isLocal, setIsLocal] = useState(true)
-  const getUser = () => {
-    const userCookie = Cookies.get("UserAuth");
-    return userCookie ? JSON.parse(userCookie) : null;
-  };
-  const [user] = useState<any>(getUser);
+  const [user, setUser] = useState<any>(getUser());
+  const [showLoginModal, setShowLoginModal] = useState(false);
   useEffect(() => {
    const fetchProductDetailsAndCartStatus = async () => {
   try {
@@ -54,15 +54,15 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
 };
 
     fetchProductDetailsAndCartStatus();
-  }, [params.id]);
+  }, [params.id, user?.id]);
 
   useEffect(() => {
     const fetchWishlistStatus = async () => {
       try {
-        const wishlistResponse = await api.getWishlist(user.id);
-        const wishlistItems = wishlistResponse.wishlist || [];
+        const wishlistResponse = await api.getWishlist(user?.id);
+        const wishlistItems = wishlistResponse || [];
         const isPresent = wishlistItems.some(
-          (item: any) => item.productId === product?.id
+          (item: any) => item.product_id === product?.id
         );
         setIsAddedToWishlist(isPresent);
       } catch (error) {
@@ -70,14 +70,41 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
       }
     };
 
-    fetchWishlistStatus();
-  }, [product]);
+    if (user?.id && product) {
+      fetchWishlistStatus();
+    }
+  }, [product, user?.id]);
 
+<<<<<<< HEAD
 const handleAddToCart = async () => {
   try {
     if (!selectedColor || !selectedSize) {
       toast({ title: "Error", description: "Please select a color and size." });
       return;
+=======
+  const handleAddToCart = async () => {
+    try {
+      if (!selectedColor || !selectedSize) {
+        toast({ title: "Error", description: "Please select a color and size." });
+        return;
+      }
+
+      await api.addToCart(
+        product.id,
+        product.name,
+        product.price,
+        product.images[0].image_url,
+        quantity,
+        selectedSize,
+        selectedColor,
+        user?.id
+      );
+      setIsInCart(true);
+      toast({ title: "Success", description: "Item added to cart successfully." });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast({ title: "Error", description: "Failed to add item to cart." });
+>>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
     }
 
     const user = getUser(); // Get fresh user data
@@ -109,6 +136,7 @@ const handleAddToCart = async () => {
     }
   };
 
+<<<<<<< HEAD
 const handleWishList = async () => {
   const user = getUser(); // Get fresh user data
   if (isAddedToWishlist) {
@@ -119,6 +147,32 @@ const handleWishList = async () => {
     } catch (error) {
       console.error("Error removing from wishlist:", error);
       toast({ title: "Error", description: "Failed to remove from wishlist." });
+=======
+  const handleWishList = async () => {
+    if (!isAuthenticated()) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    if (isAddedToWishlist) {
+      try {
+        await api.removeFromWishlist(product.id, user.id);
+        setIsAddedToWishlist(false);
+        toast({ title: "Success", description: "Removed from wishlist." });
+      } catch (error) {
+        console.error("Error removing from wishlist:", error);
+        toast({ title: "Error", description: "Failed to remove from wishlist." });
+      }
+    } else {
+      try {
+        await api.addToWishlist(user.id, product.id );
+        setIsAddedToWishlist(true);
+        toast({ title: "Success", description: "Added to wishlist." });
+      } catch (error) {
+        console.error("Error adding to wishlist:", error);
+        toast({ title: "Error", description: "Failed to add to wishlist." });
+      }
+>>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
     }
   } else {
     try {
@@ -138,12 +192,40 @@ const handleWishList = async () => {
   }
 };
 
+  const handleCopyLink = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard
+      .writeText(currentUrl)
+      .then(() => {
+        toast({
+          title: "Link copied!",
+          description: "The link has been copied to your clipboard.",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to copy link:", error);
+        toast({
+          title: "Error",
+          description: "Failed to copy the link. Please try again.",
+          variant: "destructive",
+        });
+      });
+  };
+
+  const handleLoginSuccess = () => {
+    setUser(getUser());
+  };
   if (!product) {
     return <SkeletonLoading />;
   }
 
   return (
     <div className="w-full flex flex-col max-w-screen-2xl mx-auto mt-10">
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+      />
       <div className="w-full flex flex-col md:flex-row  md:items-start md:gap-2">
         <div className="flex flex-wrap w-full md:w-3/4 justify-center items-center">
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center md:items-start w-full ">
@@ -159,11 +241,14 @@ const handleWishList = async () => {
                     <div className="p-1">
                       <Card className="border-none shadow-none rounded-xl ">
                         <CardContent className="flex items-center justify-center p-2 overflow-hidden">
-                          <img
-                            src={item.image_url}
-                            alt="Product image"
-                            className="w-full h-[450px] object-cover rounded-xl hover:scale-110 transition-transform duration-300"
-                          />
+  <Image
+    src={item.image_url}
+    alt="Product image"
+    fill
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    className="object-cover group-hover:scale-110 transition-transform duration-300"
+    quality={85}
+  />
                         </CardContent>
                       </Card>
                     </div>
@@ -293,9 +378,12 @@ const handleWishList = async () => {
               )}
 
               <div className="flex justify-center items-center gap-5 ">
-                <button className="rounded-3xl p-3 bg-accent w-1/2 flex justify-center group hover:scale-105 transition-all duration-300">
-                  <Share2 className="w-5 h-5  group-hover:scale-105 transition-all duration-300" />
-                </button>
+              <button
+        onClick={handleCopyLink}
+        className="rounded-3xl p-3 bg-accent w-1/2 flex justify-center group hover:scale-105 transition-all duration-300"
+      >
+        <Share2 className="w-5 h-5 group-hover:scale-105 transition-all duration-300" />
+      </button>
                 <button
                   onClick={() => handleWishList()}
                   className="rounded-3xl p-3 bg-accent w-1/2 flex justify-center group hover:scale-105 transition-all duration-300"
@@ -303,6 +391,7 @@ const handleWishList = async () => {
                   {isAddedToWishlist ? (
                     <Heart
                       fill="red"
+                      stroke="red"
                       className="w-5 h-5 group-hover:scale-105 transition-all duration-300"
                     />
                   ) : (
@@ -421,11 +510,14 @@ const handleWishList = async () => {
                 <CardContent className="flex flex-wrap md:grid md:grid-cols-3 md:gap-4 w-full">
                 {product.images.slice(1).map((src: any, index: any) => (
   <div key={index} className="">
-    <img
-      src={src}
-      alt="img"
-      className="w-[420px] h-[400px] object-contain"
-    />
+<Image
+    src={src}
+    alt="img"
+    fill
+    sizes="420px"
+    className="object-contain"
+    quality={85}
+  />
   </div>
 ))}
 

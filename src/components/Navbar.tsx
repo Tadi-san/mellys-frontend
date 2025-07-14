@@ -28,6 +28,7 @@ import {
   setAuthState,
   selectAuthState,
 } from "@/lib/store/features/auth/authSlice";
+import Image from "next/image";
 
 const Navbar = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -89,16 +90,24 @@ const Navbar = () => {
       router.push("/login");
     }
   };
-
+// notice me vercel
   return (
     <nav className="w-full hidden md:flex flex-col justify-center items-center p-2 sticky top-0 left-0 z-50 bg-[#191919] text-background">
       <ul className="flex gap-2 p-2 w-full max-w-screen-2xl justify-center">
         <div className="flex gap-2 justify-center items-center">
         <MyDropdownMenu />
           
-          <Link href="/">
-            <img className="w-56" alt="logo" src="/logo.jpg " />
-          </Link>
+          <Link href="/" className="block w-56 relative">
+  <Image
+    src="/logoZoomFashion.png"
+    alt="Zoom Fashion - Return to homepage"
+    width={224}  // 56 × 4 (Tailwind to pixels conversion)
+    height={30}
+    className="w-full h-auto"  // Maintains responsive width
+    priority={true}  // Important for above-the-fold logo
+    quality={90}  // Higher quality for logos
+  />
+</Link>
        
         </div>
         <div className="w-1/3 p-2 relative flex justify-center items-center">

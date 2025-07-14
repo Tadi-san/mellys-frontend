@@ -14,7 +14,11 @@ import {
 import { ShoppingCart, Trash } from "lucide-react";
 import { api } from "@/utils/index.api";
 import Cookies from "js-cookie"; 
+<<<<<<< HEAD
 import { toast } from "@/components/ui/use-toast";
+=======
+import Image from "next/image";
+>>>>>>> b3e788d4a56a5a0648b610c1b5b7a463f3d87a1c
 const WishListPage = () => {
   const [wishlistItems, setWishlistItems] = useState<any>();
   const getUser = () => {
@@ -125,11 +129,15 @@ const removeFromWishlist = async (productId: string) => {
             wishlistItems.map((item: any, index: number) => (
               <div key={index} className="flex items-start gap-8 mb-5">
                 <div className="w-44 h-44 relative rounded-md flex-shrink-0">
-                  <img
-                    src={item.image}
-                    alt="img"
-                    className="w-full h-full object-cover rounded-md"
-                  />
+                 <Image
+    src={item?.image}
+    alt={item?.name || "Product image"}  // More descriptive alt text
+    fill
+    sizes="(max-width: 768px) 100vw, 176px" // 44*4=176px
+    className="object-cover"
+    quality={85}
+    priority={false} // Set true if above-the-fold
+  />
                 </div>
                 <div className="flex flex-col gap-4 flex-1">
                   <button
