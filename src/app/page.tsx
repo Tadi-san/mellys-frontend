@@ -108,10 +108,10 @@ export default function Home() {
     <main className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6">
       <div className="animate-bounce text-5xl mb-6">🔧</div>
       <h1 className="text-4xl font-bold mb-2">Under Maintenance</h1>
-      <p className="text-xl opacity-90 mb-4">We're working hard behind the scenes.</p>
+      <p className="text-xl opacity-90 mb-4">We&apos;re working hard behind the scenes.</p>
       <p className="text-lg text-center max-w-xl mb-6">
         Our site is temporarily offline while we improve your experience.
-        We’ll be back soon with something great!
+        We&apos;ll be back soon with something great!
       </p>
       <p className="text-yellow-300 font-semibold text-lg animate-pulse">
         🚀 Launching soon with Telebirr! 🚀
