@@ -21,6 +21,8 @@ import { api } from "@/utils/index.api";
 import SkeletonLoading from "@/components/singleProductSkeletonLoading";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import LoginModal from "@/components/auth/LoginModal";
+import { getUser, isAuthenticated } from "@/utils/auth";
 const ProductDescription = ({ params }: { params: { id: string } }) => {
   const { toast } = useToast();
   const [product, setProduct] = useState<any>(null);
@@ -30,11 +32,8 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isLocal, setIsLocal] = useState(true)
-  const getUser = () => {
-    const userCookie = Cookies.get("UserAuth");
-    return userCookie ? JSON.parse(userCookie) : null;
-  };
-  const [user] = useState<any>(getUser);
+  const [user, setUser] = useState<any>(getUser());
+  const [showLoginModal, setShowLoginModal] = useState(false);
   useEffect(() => {
     const fetchProductDetailsAndCartStatus = async () => {
       try {
@@ -59,7 +58,7 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchWishlistStatus = async () => {
       try {
-        const wishlistResponse = await api.getWishlist(user.id);
+        const wishlistResponse = await api.getWishlist(user?.id);
         const wishlistItems = wishlistResponse || [];
         const isPresent = wishlistItems.some(
           (item: any) => item.product_id === product?.id
@@ -70,7 +69,9 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
       }
     };
 
-    fetchWishlistStatus();
+    if (user?.id && product) {
+      fetchWishlistStatus();
+    }
   }, [product, user?.id]);
 
   const handleAddToCart = async () => {
@@ -88,11 +89,13 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
         quantity,
         selectedSize,
         selectedColor,
-        user.id
+        user?.id
       );
       setIsInCart(true);
+      toast({ title: "Success", description: "Item added to cart successfully." });
     } catch (error) {
       console.error("Error adding to cart:", error);
+      toast({ title: "Error", description: "Failed to add item to cart." });
     }
   };
 
@@ -106,19 +109,28 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   };
 
   const handleWishList = async () => {
+    if (!isAuthenticated()) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (isAddedToWishlist) {
       try {
         await api.removeFromWishlist(product.id, user.id);
         setIsAddedToWishlist(false);
+        toast({ title: "Success", description: "Removed from wishlist." });
       } catch (error) {
         console.error("Error removing from wishlist:", error);
+        toast({ title: "Error", description: "Failed to remove from wishlist." });
       }
     } else {
       try {
         await api.addToWishlist(user.id, product.id );
         setIsAddedToWishlist(true);
+        toast({ title: "Success", description: "Added to wishlist." });
       } catch (error) {
         console.error("Error adding to wishlist:", error);
+        toast({ title: "Error", description: "Failed to add to wishlist." });
       }
     }
   };
@@ -143,12 +155,20 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
       });
   };
 
+  const handleLoginSuccess = () => {
+    setUser(getUser());
+  };
   if (!product) {
     return <SkeletonLoading />;
   }
 
   return (
     <div className="w-full flex flex-col max-w-screen-2xl mx-auto mt-10">
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+      />
       <div className="w-full flex flex-col md:flex-row  md:items-start md:gap-2">
         <div className="flex flex-wrap w-full md:w-3/4 justify-center items-center">
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center md:items-start w-full ">

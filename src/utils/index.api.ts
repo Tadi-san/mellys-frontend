@@ -6,9 +6,21 @@ const API_URL = "http://localhost:3002/api";
 const authToken = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWRtaW4iLCJ1c2VySWQiOiJlNDE5MzgzOS01MzU0LTRjNGUtODY4Yy1kYmM5YmYwYzE4MTciLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NDI0NTU3NzQsImV4cCI6MTc0MjU0MjE3NH0.N3yf6fFZgQwoLw5-cowT_cInKFFGe5XV70LUO5vBbM0"
 
 export const api = {
+  sendOtp: async (phone_number: string) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/send-otp`, {
+        phone_number,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+
   login: async (name: string, otp: string, email: string, phoneNumber: string) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
+      const response = await axios.post(`${API_URL}/auth/driver-login`, {
         name,
         otp,
         email,
@@ -52,15 +64,16 @@ getProducts: async () => {
     }
   },
 
-  getCart: async (id:string) => {
+  getCart: async (id?: string) => {
     try {
-      const response = await axios.get(`${API_URL}/cart/${id}`, {
+      const endpoint = id ? `${API_URL}/cart/${id}` : `${API_URL}/cart/guest`;
+      const response = await axios.get(endpoint, {
         headers: { Authorization: authToken },
       });
       return response.data;
     } catch (error) {
       console.error("Error fetching cart:", error);
-      throw error;
+      return []; // Return empty array for guest users
     }
   },
 
@@ -72,13 +85,22 @@ getProducts: async () => {
     quantity: number,
     size: string,
     selectedColor: string,
-    user_id: string
+    user_id?: string
   
   ) => {
     try {
       const response = await axios.post(
         `${API_URL}/cart/add`,
-        { product_id:productId, title, price, image, quantity, size, color:selectedColor, user_id },
+        { 
+          product_id: productId, 
+          title, 
+          price, 
+          image, 
+          quantity, 
+          size, 
+          color: selectedColor, 
+          user_id: user_id || null 
+        },
         { headers: { "Content-Type": "application/json", Authorization: authToken } }
       );
       return response.data;
@@ -102,20 +124,24 @@ getProducts: async () => {
     }
   },
 
-  getWishlist: async (id:string) => {
+  getWishlist: async (id?: string) => {
     try {
+      if (!id) return []; // Return empty array for guest users
       const response = await axios.get(`${API_URL}/wishlist/${id}`, {
         headers: { Authorization: authToken },
       });
       return response.data;
     } catch (error) {
       console.error("Error fetching wishlist:", error);
-      throw error;
+      return []; // Return empty array on error
     }
   },
 
-  addToWishlist: async (user_id:string, product_id:string ) => {
+  addToWishlist: async (user_id: string, product_id: string) => {
     try {
+      if (!user_id) {
+        throw new Error("Please login to add items to wishlist");
+      }
       const response = await axios.post(
         `${API_URL}/wishlist/add`,
         { user_id, product_id  },
@@ -151,15 +177,16 @@ getProducts: async () => {
       throw error;
     }
   },
-  getUser: async (id:string) => {
+  getUser: async (id?: string) => {
     try {
+      if (!id) return null;
       const response = await axios.get(`${API_URL}/users/${id}`, {
         headers: { Authorization: authToken },
       });
       return response.data;
     } catch (error) {
       console.error("Error fetching user:", error);
-      throw error;
+      return null;
     }
   },
 

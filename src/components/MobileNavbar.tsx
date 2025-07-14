@@ -19,29 +19,30 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import Image from "next/image";
+import LoginModal from "./auth/LoginModal";
+import { getUser, removeUser, isAuthenticated } from "@/utils/auth";
 
 const MobileNavbar = () => {
   const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false); // Track if component has mounted
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     setIsMounted(true); // Set mounted to true after hydration
-    const userCookie = Cookies.get("UserAuth");
-    setUser(userCookie ? JSON.parse(userCookie) : null);
-    setIsAuthenticated(!!userCookie);
+    const currentUser = getUser();
+    setUser(currentUser);
+    setAuthenticated(isAuthenticated());
   }, []);
 
   const handleSignOut = () => {
-    Cookies.remove("UserAuth");
-
-    if (!Cookies.get("UserAuth")) {
-      setIsAuthenticated(false);
-      router.replace("/");
-    }
+    removeUser();
+    setUser(null);
+    setAuthenticated(false);
+    router.replace("/");
   };
 
   const handleSearchChange = (e: any) => {
@@ -53,6 +54,11 @@ const MobileNavbar = () => {
     router.push(`/search/${searchInput}`);
   };
 
+  const handleLoginSuccess = () => {
+    const currentUser = getUser();
+    setUser(currentUser);
+    setAuthenticated(true);
+  };
   // Don't render anything until the component has mounted
   if (!isMounted) {
     return null;
@@ -60,6 +66,11 @@ const MobileNavbar = () => {
 
   return (
     <nav className="flex md:hidden flex-col w-full p-2 sticky top-0 left-0 z-50 bg-background">
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+      />
       <ul className="flex justify-between p-2">
         <div className="flex gap-2 justify-center items-center">
           <HamburgerMenu />
@@ -85,7 +96,7 @@ const MobileNavbar = () => {
             )}
           </button>
 
-          {user && (
+          {authenticated ? (
             <Dialog>
               <DialogTrigger asChild>
                 <User className="w-6 h-6 cursor-pointer" />
@@ -113,6 +124,10 @@ const MobileNavbar = () => {
                 </div>
               </DialogContent>
             </Dialog>
+          ) : (
+            <button onClick={() => setShowLoginModal(true)}>
+              <User className="w-6 h-6 cursor-pointer" />
+            </button>
           )}
 
           <Link href="/cart">

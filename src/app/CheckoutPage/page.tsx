@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { loadStripe } from "@stripe/stripe-js";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { api } from "@/utils/index.api";
+import LoginModal from "@/components/auth/LoginModal";
+import { getUser, isAuthenticated } from "@/utils/auth";
 
 // Stripe Publishable Key (replace with your own)
 const stripePromise = loadStripe("4567"); //process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY! ||
@@ -17,11 +19,20 @@ const paypalClientId = "2345"; // process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ||;
 const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "paypal" | "cybersource">("stripe");
   const [cyberSourceForm, setCyberSourceForm] = useState<string>("");
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [user, setUser] = useState<any>(getUser());
   const [cardDetails, setCardDetails] = useState({
     cardNumber: "",
     expiryDate: "",
     cvc: "",
   });
+
+  useEffect(() => {
+    // Check if user is authenticated when component mounts
+    if (!isAuthenticated()) {
+      setShowLoginModal(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (cyberSourceForm) {
@@ -39,7 +50,16 @@ const CheckoutPage = () => {
     }
   }, [cyberSourceForm]);
 
+  const handleLoginSuccess = () => {
+    setUser(getUser());
+  };
+
   const handleCyberSourcePayment = async () => {
+    if (!isAuthenticated()) {
+      setShowLoginModal(true);
+      return;
+    }
+
     try {
       const response = await api.initiatePayment({
         amount: "100.00",
@@ -58,12 +78,13 @@ const CheckoutPage = () => {
     }
   };
   
-  
-  
-  
-  
 
   const handleStripePayment = async () => {
+    if (!isAuthenticated()) {
+      setShowLoginModal(true);
+      return;
+    }
+
     const stripe = await stripePromise;
 
     // Create a payment intent on your server
@@ -77,21 +98,15 @@ const CheckoutPage = () => {
 
     const { clientSecret } = await response.json();
 
-    // Confirm the payment on the client side
-    // const { error } = await stripe!.confirmCardPayment(clientSecret, {
-    //   payment_method: {
-    //     card: cardDetails,
-    //   },
-    // });
-
-    // if (error) {
-    //   console.error("Payment failed:", error.message);
-    // } else {
-    //   console.log("Payment succeeded!");
-    // }
+    // Add your stripe payment confirmation logic here
   };
 
   const handlePayPalPayment = (data: any, actions: any) => {
+    if (!isAuthenticated()) {
+      setShowLoginModal(true);
+      return;
+    }
+
     return actions.order.create({
       purchase_units: [
         {
@@ -109,8 +124,33 @@ const CheckoutPage = () => {
     });
   };
 
+  // Show login modal if user is not authenticated
+  if (!isAuthenticated()) {
+    return (
+      <div className="w-full max-w-4xl mx-auto p-4">
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          onSuccess={handleLoginSuccess}
+        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Please log in to proceed with checkout.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+      />
       <Card>
         <CardHeader>
           <CardTitle>Checkout</CardTitle>
@@ -126,12 +166,6 @@ const CheckoutPage = () => {
               >
                 Credit/Debit Card
               </Button>
-              {/* <Button
-                variant={paymentMethod === "paypal" ? "default" : "outline"}
-                onClick={() => setPaymentMethod("paypal")}
-              >
-                PayPal
-              </Button> */}
               <Button
                 variant={paymentMethod === "cybersource" ? "default" : "outline"}
                 onClick={() => setPaymentMethod("cybersource")}
@@ -185,18 +219,7 @@ const CheckoutPage = () => {
             </div>
           )}
 
-          {/* PayPal Buttons */}
-          {/* {paymentMethod === "paypal" && (
-            <PayPalScriptProvider options={{ clientId: paypalClientId }}>
-              <PayPalButtons
-                createOrder={handlePayPalPayment}
-                onApprove={handlePayPalApprove}
-                className="w-full"
-              />
-            </PayPalScriptProvider>
-          )} */}
-
-{paymentMethod === "cybersource" && (
+          {paymentMethod === "cybersource" && (
             <div className="space-y-4">
               <Button onClick={handleCyberSourcePayment} className="w-full">
                 Pay with CyberSource

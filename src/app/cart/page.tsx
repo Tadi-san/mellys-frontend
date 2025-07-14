@@ -13,15 +13,14 @@ import {
 import { ShoppingCart, Trash } from "lucide-react";
 import { api } from "@/utils/index.api";
 import Image from "next/image";
+import LoginModal from "@/components/auth/LoginModal";
+import { getUser, isAuthenticated } from "@/utils/auth";
 
 const CartPage = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [items, setItems] = useState<any[]>([]); // Initialize as an empty array
-  const getUser = () => {
-    const userCookie = Cookies.get("UserAuth");
-    return userCookie ? JSON.parse(userCookie) : null;
-  };
-  const [user] = useState<any>(getUser);
+  const [user, setUser] = useState<any>(getUser());
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const isLocal = () => {
     const userCookie = Cookies.get("isLocal");
     return userCookie ? JSON.parse(userCookie) : null;
@@ -32,16 +31,14 @@ const CartPage = () => {
   useEffect(() => {
     const fetchCartDetails = async () => {
       try {
-        const data = await api.getCart(user.id);
+        const data = await api.getCart(user?.id);
         setItems(data); // Set the items directly from the API response
       } catch (error) {
         console.log("ERROR:", error);
       }
     };
 
-    if (user?.id) {
-      fetchCartDetails();
-    }
+    fetchCartDetails();
   }, [user?.id]);
 
   useEffect(() => {
@@ -67,8 +64,25 @@ const CartPage = () => {
     router.push(`/products/${id}`);
   };
 
+  const handleCheckout = () => {
+    if (!isAuthenticated()) {
+      setShowLoginModal(true);
+    } else {
+      router.push("/CheckoutPage");
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setUser(getUser());
+    router.push("/CheckoutPage");
+  };
   return (
     <Suspense>
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+      />
       <div className="w-full md:max-w-7xl md:mx-auto flex flex-col md:flex-row justify-center items-center md:items-start gap-5 md:mt-10">
         <Card className="w-full max-w-5xl">
           <CardHeader>
@@ -136,9 +150,12 @@ const CartPage = () => {
                 <div>Total</div>
                 <div>{isLocalUser ? `${totalCost * 127} br` : `$${totalCost}`}</div>
               </div>
-              <Link href="/CheckoutPage" className="w-full px-5 py-3 text-center rounded-3xl bg-red-500 text-white font-bold hover:font-extrabold transition-all duration-300">
+              <button 
+                onClick={handleCheckout}
+                className="w-full px-5 py-3 text-center rounded-3xl bg-red-500 text-white font-bold hover:font-extrabold transition-all duration-300"
+              >
                 Checkout ({items.length})
-              </Link>
+              </button>
             </CardContent>
           </Card>
         )}

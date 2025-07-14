@@ -15,85 +15,15 @@ import { useToast } from "./ui/use-toast";
 import { api } from "@/utils/index.api";
 import { Product } from "@/config.product";
 import Image from "next/image";
+import { getUser } from "@/utils/auth";
 
 const ItemCard = ({ product }: { product: any }) => {
-  // const dispatch: AppDispatch = useDispatch();
   const [isLocal, setIsLocal] = useState(true)
-  // const isAuthenticated = useSelector((state: RootState) =>
-  //   selectAuthState(state)
-  // );
-  // const isLocal = useSelector((state: RootState) =>
-  //   selectAuthState(state)
-  // );
   const router = useRouter();
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
+  const user = getUser();
 
-  // useEffect(() => {
-  //   const token = Cookies.get("UserAuth");
-  //   dispatch(setAuthState(!!token)); // Update Redux state based on cookie presence
-  // }, [dispatch]);
-
-  // Check if the product is already in the cart
-  // const checkIfProductInCart = async () => {
-  //   try {
-  //     const cartResponse = await api.getCart(); // Using the new API function
-  //     const cartItems = cartResponse.data?.cart || [];
-  //     const isPresent = cartItems.some((item: any) => item.productId === product.id);
-  //     if (isPresent) {
-  //       const existingItem = cartItems.find((item: any) => item.productId === product.id);
-  //       setQuantity(existingItem?.quantity || 1);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error checking cart:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     checkIfProductInCart();
-  //   }
-  // }, [isAuthenticated]);
-
-  // Add product to cart
-  // const handleAddToCart = async () => {
-  //   // if (!isAuthenticated) {
-  //   //   router.push("/login");
-  //   //   return;
-  //   // }
-  //   try {
-  //     const response = await api.addToCart(
-  //       product.id,
-  //      product.name,
-  //       (product.price * 83).toFixed(2),
-  //    product.image, // Assuming 'image' is part of the product data
-  //       quantity,
-  //    "s", // Assuming size 'm', adjust accordingly
-  //     );
-  //     toast({
-  //       title: "Item added to cart",
-  //       className: "text-red-600 bg-white hover:bg-gray-100 font-bold",
-  //     });
-  //   } catch (error) {
-  //     console.log("ERROR adding to cart : ", error);
-  //   }
-  // };
-
-  // Update item quantity in cart
-  // const handleUpdateCart = async () => {
-  //   try {
-  //     await api.updateCart(
-  //       product.id,
-  //       quantity,
-  //     );
-  //     toast({
-  //       title: "Cart updated successfully",
-  //       className: "text-red-600 bg-white hover:bg-gray-100 font-bold",
-  //     });
-  //   } catch (error) {
-  //     console.log("ERROR updating cart : ", error);
-  //   }
-  // };
 
   return (
     <div
@@ -119,14 +49,6 @@ const ItemCard = ({ product }: { product: any }) => {
           {product.name}
         </Link>
       </div>
-      {/* <div className="hidden md:flex text-xs tracking-widest font-bold pl-2 mb-5 mt-2 justify-between items-center">
-        <div>
-          <span className="md:text-xl">{isLocal ?`${ product.price * 127}br`: `$${product.price}`}</span>
-        </div>
-        <button onClick={handleAddToCart}>
-          <ShoppingCart className="w-5 sm:w-12 h-10 sm:h-12 absolute bottom-2 right-2 bg-white sm:p-3 rounded-full sm:hover:bg-black sm:hover:text-white align-middle" />
-        </button>
-      </div> */}
 
       <Link href={`/products/${product.id}`} className="flex md:hidden text-xl tracking-wide pl-2 justify-start items-center gap-1">
         <div className="md:text-xl">{isLocal ? `${ product.price * 127}br` : `$${product.price}`}</div>
