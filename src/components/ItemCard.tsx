@@ -51,7 +51,7 @@ const ItemCard = ({ product }: { product: any }) => {
       </div>
 
       <Link href={`/products/${product.id}`} className="flex md:hidden text-xl tracking-wide pl-2 justify-start items-center gap-1">
-        <div className="md:text-xl">{isLocal ? `${ product.price * 127}br` : `$${product.price}`}</div>
+        <div className="md:text-xl"> {` ${product.price} birr`}</div>
       </Link>
 
       <Link href={`/products/${product.id}`} className="flex md:hidden tracking-tight gap-2 pl-2">

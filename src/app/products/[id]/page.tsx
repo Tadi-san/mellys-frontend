@@ -16,14 +16,14 @@ import {
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import LoadingPage from "@/app/loading";
+
 import { api } from "@/utils/index.api";
 import SkeletonLoading from "@/components/singleProductSkeletonLoading";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import LoginModal from "@/components/auth/LoginModal";
 import { getUser, isAuthenticated } from "@/utils/auth";
-const ProductDescription = ({ params }: { params: { id: string } }) => {
+const ProductDescription = ({ params }: { params: Promise<{ id: string }> }) => {
   const { toast } = useToast();
   const [product, setProduct] = useState<any>(null);
   const [isInCart, setIsInCart] = useState(false);
@@ -34,27 +34,104 @@ const ProductDescription = ({ params }: { params: { id: string } }) => {
   const [isLocal, setIsLocal] = useState(true)
   const [user, setUser] = useState<any>(getUser());
   const [showLoginModal, setShowLoginModal] = useState(false);
-  useEffect(() => {
-   const fetchProductDetailsAndCartStatus = async () => {
-  try {
-    const productResponse = await api.getProductDetails(params.id);
-    setProduct(productResponse);
+  const [productId, setProductId] = useState<string | null>(null);
+  const [isCartLoading, setIsCartLoading] = useState(false);
 
-    const user = getUser(); // Get fresh user data
-    const cartResponse = await api.getCart(user?.id || null);
-    const cartItems = cartResponse.cart || [];
-    const isPresent = cartItems.some(
-      (item: any) => item.productId === productResponse.id
-    );
-    setIsInCart(isPresent);
-    setQuantity(isPresent ? cartItems.find((item: any) => item.productId === productResponse.id)?.quantity || 1 : 1);
-  } catch (error) {
-    console.error("Error fetching product details and cart status:", error);
-  }
-};
+  // Function to check if current size/color combination is in cart
+  const checkCartStatus = async () => {
+    if (!product) return;
+    
+    try {
+      const user = getUser();
+      const cartResponse = await api.getCart(user?.id || null);
+      const cartItems = cartResponse.cart || [];
+      
+      // Check if product exists in cart (any size/color combination)
+      const isPresent = cartItems.some(
+        (item: any) => 
+          (item.productId === product.id || item.product_id === product.id)
+      );
+      
+      setIsInCart(isPresent);
+      
+      if (isPresent) {
+        // If size and color are selected, find the specific combination
+        if (selectedSize && selectedColor) {
+          const cartItem = cartItems.find((item: any) => 
+            (item.productId === product.id || item.product_id === product.id) &&
+            item.size === selectedSize &&
+            item.color === selectedColor
+          );
+          if (cartItem) {
+            setQuantity(cartItem.quantity);
+          }
+        } else {
+          // If no size/color selected, use the first matching item
+          const cartItem = cartItems.find((item: any) => 
+            (item.productId === product.id || item.product_id === product.id)
+          );
+          if (cartItem) {
+            setQuantity(cartItem.quantity);
+          }
+        }
+      } else {
+        setQuantity(1);
+      }
+    } catch (error) {
+      console.error("Error checking cart status:", error);
+    }
+  };
+
+  // Check cart status when product loads or size/color changes
+  useEffect(() => {
+    checkCartStatus();
+  }, [product, selectedSize, selectedColor]);
+
+  // Await params and set productId
+  useEffect(() => {
+    const getParams = async () => {
+      const resolvedParams = await params;
+      setProductId(resolvedParams.id);
+    };
+    getParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (!productId) return;
+    
+    const fetchProductDetailsAndCartStatus = async () => {
+      try {
+        const productResponse = await api.getProductDetails(productId);
+        setProduct(productResponse);
+
+        const user = getUser(); // Get fresh user data
+        const cartResponse = await api.getCart(user?.id || null);
+        const cartItems = cartResponse.cart || [];
+        
+        // Check if this specific product with selected size/color is in cart
+        // For now, we'll just check if the product exists in cart
+        // The specific size/color check will be done when user selects them
+        const isPresent = cartItems.some(
+          (item: any) => item.productId === productResponse.id || item.product_id === productResponse.id
+        );
+        setIsInCart(isPresent);
+        
+        // If item is in cart, set the quantity from the first matching item
+        if (isPresent) {
+          const cartItem = cartItems.find((item: any) => 
+            item.productId === productResponse.id || item.product_id === productResponse.id
+          );
+          if (cartItem) {
+            setQuantity(cartItem.quantity);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching product details and cart status:", error);
+      }
+    };
 
     fetchProductDetailsAndCartStatus();
-  }, [params.id, user?.id]);
+  }, [productId, user?.id]);
 
   useEffect(() => {
     const fetchWishlistStatus = async () => {
@@ -82,7 +159,11 @@ const handleAddToCart = async () => {
       return;
     }
 
+    setIsCartLoading(true);
     const user = getUser(); // Get fresh user data
+    console.log("Product page - getUser() result:", user);
+    console.log("Product page - user ID:", user?.id);
+    
     await api.addToCart(
       user?.id || null,
       product.id,
@@ -93,23 +174,73 @@ const handleAddToCart = async () => {
       selectedSize,
       selectedColor
     );
-    setIsInCart(true);
+    
+    // After adding to cart, refresh the cart status
+    const cartResponse = await api.getCart(user?.id || null);
+    const cartItems = cartResponse.cart || [];
+    const isPresent = cartItems.some(
+      (item: any) => 
+        (item.productId === product.id || item.product_id === product.id) &&
+        item.size === selectedSize &&
+        item.color === selectedColor
+    );
+    setIsInCart(isPresent);
+    
     toast({ title: "Success", description: "Item added to cart!" });
   } catch (error) {
     console.error("Error adding to cart:", error);
     toast({ title: "Error", description: "Failed to add item to cart." });
+  } finally {
+    setIsCartLoading(false);
   }
 };
 
-
-  const handleUpdateCart = async () => {
-    try {
-      await api.updateCart(product.id, quantity);
-      toast({ title: "Success", description: "Cart updated successfully." });
-    } catch (error) {
-      console.error("Error updating cart:", error);
+const handleUpdateCart = async () => {
+  try {
+    setIsCartLoading(true);
+    const user = getUser();
+    // Find the cart item ID for this product
+    const cartResponse = await api.getCart(user?.id || null);
+    const cartItems = cartResponse.cart || [];
+    // Find cart item by product ID first, then by size/color if selected
+    let cartItem = cartItems.find((item: any) => 
+      (item.productId === product.id || item.product_id === product.id)
+    );
+    
+    // If size and color are selected, find the specific combination
+    if (selectedSize && selectedColor && cartItem) {
+      cartItem = cartItems.find((item: any) => 
+        (item.productId === product.id || item.product_id === product.id) &&
+        item.size === selectedSize &&
+        item.color === selectedColor
+      );
     }
-  };
+    
+    console.log("Cart items:", cartItems);
+    console.log("Looking for product:", product.id, "size:", selectedSize, "color:", selectedColor);
+    console.log("Product ID type:", typeof product.id);
+    console.log("Cart items product IDs:", cartItems.map((item: any) => ({ 
+      productId: item.productId, 
+      product_id: item.product_id, 
+      size: item.size, 
+      color: item.color 
+    })));
+    console.log("Found cart item:", cartItem);
+    
+    if (cartItem && cartItem.id) {
+      console.log("Updating cart item with ID:", cartItem.id);
+      await api.updateCart(user?.id || null, cartItem.id, quantity);
+      toast({ title: "Success", description: "Cart updated successfully." });
+    } else {
+      toast({ title: "Error", description: "Item not found in cart." });
+    }
+  } catch (error) {
+    console.error("Error updating cart:", error);
+    toast({ title: "Error", description: "Failed to update cart." });
+  } finally {
+    setIsCartLoading(false);
+  }
+};
 
 const handleWishList = async () => {
   const user = getUser(); // Get fresh user data
@@ -164,7 +295,11 @@ const handleWishList = async () => {
     setUser(getUser());
   };
   if (!product) {
-    return <SkeletonLoading />;
+    return (
+      <div className="w-full flex flex-col max-w-screen-2xl mx-auto mt-10">
+        <SkeletonLoading />
+      </div>
+    );
   }
 
   return (
@@ -187,13 +322,12 @@ const handleWishList = async () => {
                 {product.images.map((item: any, index: number) => (
                   <CarouselItem key={index}>
                     <div className="p-1">
-                      <Card className="border-none shadow-none rounded-xl ">
-                        <CardContent className="flex items-center justify-center p-2 overflow-hidden">
+                      <Card className="border-none shadow-none rounded-xl">
+                        <CardContent className="flex items-center justify-center p-2 overflow-hidden relative h-96 rounded-md">
   <Image
     src={item.image_url}
     alt="Product image"
     fill
-    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
     className="object-cover group-hover:scale-110 transition-transform duration-300"
     quality={85}
   />
@@ -208,7 +342,7 @@ const handleWishList = async () => {
             </Carousel>
 
             <div className="flex flex-col gap-5 px-6 md:px-2 items-start justify-start w-full ">
-              <div className="font-bold text-xl md:text-4xl mt-2">{isLocal ?`${ product.price * 127}br`: `$${product.price}`}</div>
+              <div className="font-bold text-xl md:text-4xl mt-2"> {` ${product.price} birr`}</div>
               <div className="font-bold text-sm md:text-xl">{product.name}</div>
               <div className="text-xs">{product.stock_quantity} items available</div>
 
@@ -310,8 +444,9 @@ const handleWishList = async () => {
                   onClick={() => handleUpdateCart()}
                   variant="myBtn"
                   size="mySize"
+                  disabled={isCartLoading}
                 >
-                  Add To Cart
+                  {isCartLoading ? "Updating..." : "Update Quantity"}
                 </Button>
               ) : (
                 <Button
@@ -320,8 +455,9 @@ const handleWishList = async () => {
                   }}
                   variant="myBtn"
                   size="mySize"
+                  disabled={isCartLoading}
                 >
-                  Add To Cart
+                  {isCartLoading ? "Adding..." : "Add To Cart"}
                 </Button>
               )}
 
@@ -457,12 +593,12 @@ const handleWishList = async () => {
                 </CardHeader>
                 <CardContent className="flex flex-wrap md:grid md:grid-cols-3 md:gap-4 w-full">
                 {product.images.slice(1).map((src: any, index: any) => (
-  <div key={index} className="">
+  <div key={index} className="relative w-full h-64">
 <Image
-    src={src}
-    alt="img"
+    src={src.image_url}
+    alt="Product image"
     fill
-    sizes="420px"
+    sizes="(max-width: 768px) 100vw, 33vw"
     className="object-contain"
     quality={85}
   />

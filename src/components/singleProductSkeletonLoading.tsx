@@ -1,3 +1,7 @@
+"use client";
+
+import React from "react";
+
 const SkeletonLoading = () => {
     return (
       <div className="animate-pulse flex flex-col max-w-screen-2xl mx-auto mt-10">
@@ -69,4 +73,4 @@ const SkeletonLoading = () => {
     );
   };
 
-  export default SkeletonLoading
+  export default SkeletonLoading;

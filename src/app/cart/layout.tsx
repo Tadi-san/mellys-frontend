@@ -6,17 +6,14 @@ export const metadata = {
   description: "cart data",
 };
 
-export default function RootLayout({
+export default function CartLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        {/* Ensure the <body> tag is directly wrapping the content */}
-        <StoreProvider>{children}</StoreProvider>
-      </body>
-    </html>
+    <>
+      <StoreProvider>{children}</StoreProvider>
+    </>
   );
 }

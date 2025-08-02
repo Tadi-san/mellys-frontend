@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ShoppingCart, Trash } from "lucide-react";
+import { ShoppingCart, Trash, Plus, Minus } from "lucide-react";
 import { api } from "@/utils/index.api";
 import { toast } from "@/components/ui/use-toast";
 import { isAuthenticated, setUser } from "@/utils/auth";
@@ -19,6 +19,7 @@ import LoginModal from "@/components/auth/LoginModal";
 const CartPage = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [items, setItems] = useState<any[]>([]); // Initialize as an empty array
+  const [isLoading, setIsLoading] = useState(false);
   const getUser = () => {
     const userCookie = Cookies.get("UserAuth");
     return userCookie ? JSON.parse(userCookie) : null;
@@ -29,23 +30,26 @@ const CartPage = () => {
     const userCookie = Cookies.get("isLocal");
     return userCookie ? JSON.parse(userCookie) : null;
   };
-  const [isLocalUser] = useState<any>(isLocal);
   const router = useRouter();
 
-
-
-// In your useEffect for fetching cart:
-useEffect(() => {
   const fetchCartDetails = async () => {
+    setIsLoading(true);
     try {
       const user = getUser(); // Get fresh user data
+      console.log("Cart page - getUser() result:", user);
+      console.log("Cart page - user ID:", user?.id);
       const data = await api.getCart(user?.id || null);
+      console.log("Cart page - getCart result:", data);
       setItems(data.cart || []);
     } catch (error) {
       console.log("ERROR:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+// In your useEffect for fetching cart:
+useEffect(() => {
   fetchCartDetails();
 }, []); // Remove user.id from dependencies
 
@@ -55,11 +59,27 @@ const removeProductById = async (item: any) => {
   const user = getUser(); // Get fresh user data
   try {
     await api.removeFromCart(user?.id || null, id);
-    setItems((prevItems: any) => prevItems.filter((i: any) => i.id !== id));
+    // Refresh cart data instead of just filtering
+    await fetchCartDetails();
     toast({ title: "Success", description: "Item removed from cart!" });
   } catch (error) {
     console.log("ERROR:", error);
     toast({ title: "Error", description: "Failed to remove item from cart." });
+  }
+};
+
+const updateItemQuantity = async (item: any, newQuantity: number) => {
+  if (newQuantity < 1) return;
+  
+  const user = getUser();
+  try {
+    await api.updateCart(user?.id || null, item.id, newQuantity);
+    // Refresh cart data to ensure consistency
+    await fetchCartDetails();
+    toast({ title: "Success", description: "Quantity updated!" });
+  } catch (error) {
+    console.log("ERROR:", error);
+    toast({ title: "Error", description: "Failed to update quantity." });
   }
 };
 
@@ -70,17 +90,6 @@ const removeProductById = async (item: any) => {
     });
     setTotalCost(cost);
   }, [items]);
-
-
-  // const removeProductById = async (item: any) => {
-  //   const id = item?.id; // Use product_id to remove
-  //   try {
-  //     await api.removeFromCart(id);
-  //     setItems((prevItems:any) => prevItems.filter((i: any) => i.id !== id));
-  //   } catch (error) {
-  //     console.log("ERROR:", error);
-  //   }
-  // };
 
   const handleProductInfo = (item: any) => {
     const id = item?.product.id; // Use the product ID for navigation
@@ -112,7 +121,11 @@ const removeProductById = async (item: any) => {
             <CardTitle>Shopping Cart ({items.length})</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-10 mt-10">
-            {items.length > 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <p>Loading cart...</p>
+              </div>
+            ) : items.length > 0 ? (
               items.map((item: any, index: number) => (
                 <div key={item.id} className="flex items-center md:items-start gap-8 mb-5">
                   {/* Product Image */}
@@ -133,10 +146,27 @@ const removeProductById = async (item: any) => {
                       <div className="line-clamp-1 md:line-clamp-2">{item.product.name}</div>
                     </button>
                     <div className="font-bold">
-                      {isLocalUser ? `${item.product.price * 127} br` : `$${item.product.price}`}
+                      { `${item.product.price } birr`}
                     </div>
                     <div className="flex flex-col gap-2">
-                      <div>Quantity: {item.quantity}</div>
+                      <div className="flex items-center gap-2">
+                        <span>Quantity:</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => updateItemQuantity(item, item.quantity - 1)}
+                            className="bg-gray-100 rounded-full p-1"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="font-bold">{item.quantity}</span>
+                          <button
+                            onClick={() => updateItemQuantity(item, item.quantity + 1)}
+                            className="bg-gray-100 rounded-full p-1"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
                       <div>Size: {item.size}</div>
                       <div>Color: {item.color}</div>
                     </div>
@@ -170,7 +200,7 @@ const removeProductById = async (item: any) => {
             <CardContent className="flex flex-col gap-10 mt-10">
               <div className="flex justify-between font-bold">
                 <div>Total</div>
-                <div>{isLocalUser ? `${totalCost * 127} br` : `$${totalCost}`}</div>
+                <div>{totalCost} birr</div>
               </div>
               <button 
                 onClick={handleCheckout}

@@ -123,56 +123,39 @@ const removeFromWishlist = async (productId: string) => {
         <CardContent className="flex flex-col gap-10 mt-10">
           {wishlistItems && wishlistItems.length > 0 ? (
             wishlistItems.map((item: any, index: number) => (
-              <div key={index} className="flex items-start gap-8 mb-5">
-                <div className="w-44 h-44 relative rounded-md flex-shrink-0">
-                 <img
-    src={item?.image}
-    alt={item?.name || "Product image"}  // More descriptive alt text
-    sizes="(max-width: 768px) 100vw, 176px" // 44*4=176px
-    className="object-cover"
-    // quality={85}
-    // priority={false} // Set true if above-the-fold
-  />
-                </div>
-                <div className="flex flex-col gap-4 flex-1">
-                  <button
-                    onClick={() => handleProductInfo(item)}
-                    className="text-start"
-                  >
-                    <div className="line-clamp-2">{item.title}</div>
-                  </button>
+            });
+          }
 
-                  <div className="font-bold">₹ {item.price}</div>
-                </div>
-                <button className="bg-accent py-2 px-4 rounded-lg hover:font-bold transition-all duration-300">
-                  Move to cart
-                </button>
-<button 
-  onClick={() => removeFromWishlist(item.productId)} 
-  className="py-2 px-2 rounded-lg"
->
-  <Trash className="w-6 h-6 hover:text-red-500 transition-all duration-300" />
-</button>
-              </div>
-            ))
-          ) : (
-            <div className="flex flex-col justify-center items-center gap-10">
-              <ShoppingCart className="w-56 h-56 text-gray-300" />
-              <div className="font-bold text-xl">
-                No items yet? Continue shopping to explore more.
-              </div>
-              <Link
-                href="/"
-                className="px-5 py-3  rounded-3xl bg-red-500 text-white hover:scale-105 hover:bg-red-600 hover:font-bold transition-all duration-300"
-              >
-                Explore More Items
-              </Link>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
+              // Create checkout session with Paddle
+              //     const checkoutSession = await paddleConfig.createCheckoutSession(
+              //       productId,
+              //       userId,
+              //       userEmail,
+              //       { credits: productConfig.credits }
+              //     );
+              // 
+                  res.json({
+                          success: true,
+                                checkout_url: checkoutSession.checkout_url,
+                                      product: {
+                                                name: productConfig.name,
+                                                        credits: productConfig.credits,
+                                                                type: <productConfig className="type">      }
+                                                                    });
+                                                                    
+                                                                      } catch (error) {
+                                                                            console.error('Checkout creation error:', error);
+                                                                                res.status(500).json({
+                                                                                        success: false,
+                                                                                              message: 'Failed to create checkout session',
+                                                                                                    error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+                                                                                });
+                                                                              }
+                                                                              };
 
-export default WishListPage;
+                                                                              /**
+                                                                               * Create subscription checkout session * @route POST /be */
+                                                                                })
+                                                                      }</productConfig>
+                                      }
+                  })</CardContent>

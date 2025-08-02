@@ -99,7 +99,7 @@ const Navbar = () => {
           
           <Link href="/" className="block w-56 relative">
   <Image
-    src="/logoZoomFashion.png"
+    src="/logo1.webp"
     alt="Zoom Fashion - Return to homepage"
     width={224}  // 56 × 4 (Tailwind to pixels conversion)
     height={30}

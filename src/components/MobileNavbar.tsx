@@ -78,7 +78,7 @@ const MobileNavbar = () => {
             <img
               className="w-6 h-6 object-contain"
               alt="logo"
-              src="/logo.jpg"
+              src="/logo1.webp"
             />
             <span className=" text-black ">Mellys</span>
           </Link>

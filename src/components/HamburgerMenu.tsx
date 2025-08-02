@@ -50,21 +50,22 @@ const HamburgerMenu = () => {
       <SheetContent side="left" className="overflow-y-auto">
         <Separator className="my-1 mt-12" />
         <SheetHeader className="mt-6">
-          <SheetTitle className="text-base font-normal flex flex-col gap-5 text-start ">
+          <SheetTitle className="text-base font-normal flex justify-around gap-12 text-start flex-wrap">
             {data.map((item: any) => (
               <Link href={`/search/${item.name}`} key={item.id} className="">
-                <SheetClose className="flex gap-5 justify-start items-center">
+                <SheetClose className="flex flex-col gap-2 justify-start items-start">
               <Image
     src={item.img}
     alt={item.name || "Product thumbnail"} // More descriptive alt text
-    fill
-    sizes="48px" // w-12 = 48px (12×4)
+    width={48}
+    height={48}
     className="object-contain rounded-lg"
     quality={80} // Slightly higher quality for small images
   />
                   <div className="text-xl text-start">{item.name}</div>
                 </SheetClose>
               </Link>
+              
             ))}
           </SheetTitle>
           <Separator className="my-1 mt-12" />

@@ -13,20 +13,18 @@ export const metadata: Metadata = {
   description: "Affordable Prices And Top Designs ",
 };
 
-export default function RootLayout({
+export default function CheckoutLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-        <body>
-          <ToastProvider>
-          {/* <MobileNavbar /> */}
-          {children}
-          <Toaster />
-          </ToastProvider>
-        </body>
-    </html>
+    <>
+      <ToastProvider>
+        {/* <MobileNavbar /> */}
+        {children}
+        <Toaster />
+      </ToastProvider>
+    </>
   );
 }

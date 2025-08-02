@@ -137,12 +137,15 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+251900000000"
+                  placeholder="09........ or +251........"
                   value={formData.phone_number}
                   onChange={(e) =>
                     setFormData({ ...formData, phone_number: e.target.value })
                   }
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {/* Enter your number (e.g., 09......., +251.......) */}
+                </p>
               </div>
               <Button
                 onClick={handleSendOtp}
