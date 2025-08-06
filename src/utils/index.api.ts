@@ -46,8 +46,40 @@ const apiClient = axios.create({
     "Content-Type": "application/json",
     Authorization: AUTH_TOKEN,
   },
+  // Add timeout and retry configuration
+  timeout: 10000,
+  withCredentials: false, // Set to false for cross-origin requests
 });
 
+// Add request interceptor for better error handling
+apiClient.interceptors.request.use(
+  (config) => {
+    console.log(`Making ${config.method?.toUpperCase()} request to: ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling
+apiClient.interceptors.response.use(
+  (response) => {
+    console.log(`Response received from: ${response.config.url}`, response.status);
+    return response;
+  },
+  (error) => {
+    console.error('Response error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    return Promise.reject(error);
+  }
+);
 
 // Add these helper functions at the top of your index.api.ts
 const getGuestCart = () => {
