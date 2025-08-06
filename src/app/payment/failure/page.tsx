@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { XCircle, RefreshCw, Home, ShoppingBag } from "lucide-react";
 
-const PaymentFailurePage = () => {
+const PaymentFailureContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
@@ -39,7 +39,6 @@ const PaymentFailurePage = () => {
   }, [searchParams]);
 
   const handleRetryPayment = () => {
-    // Go back to checkout page
     router.push('/CheckoutPage');
   };
 
@@ -73,7 +72,7 @@ const PaymentFailurePage = () => {
             Payment Failed
           </CardTitle>
           <p className="text-gray-600 mt-2">
-            We're sorry, but your payment could not be processed.
+            We&apos;re sorry, but your payment could not be processed.
           </p>
         </CardHeader>
         
@@ -159,6 +158,14 @@ const PaymentFailurePage = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+const PaymentFailurePage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentFailureContent />
+    </Suspense>
   );
 };
 
