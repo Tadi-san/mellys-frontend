@@ -1,8 +1,8 @@
 import axios from "axios";
 
-// const API_URL = "http://localhost:3002/api";
-const API_URL = "http://143.110.150.238:3002/api";
-// const API_URL = "https://melly-s-fashion-backend.onrender.com/api";
+// Use HTTPS with the working port 8443
+const API_URL = "https://143.110.150.238:8443/api";
+
 const AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWRtaW4iLCJ1c2VySWQiOiJlNDE5MzgzOS01MzU0LTRjNGUtODY4Yy1kYmM5YmYwYzE4MTciLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTI0NzY0NjMsImV4cCI6MTc1MjU2Mjg2M30.fCrezMjo0DUWtmaatBME43KPfnwwQ-kg0MWQ-IQKtfg";
 
 // Phone number formatting utility for Ethiopian numbers
@@ -49,6 +49,10 @@ const apiClient = axios.create({
   // Add timeout and retry configuration
   timeout: 10000,
   withCredentials: false, // Set to false for cross-origin requests
+  // For self-signed certificates, we need to handle SSL verification
+  httpsAgent: new (require('https').Agent)({
+    rejectUnauthorized: false // Only for development with self-signed certs
+  })
 });
 
 // Add request interceptor for better error handling
