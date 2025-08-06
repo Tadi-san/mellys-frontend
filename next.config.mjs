@@ -12,7 +12,7 @@ const nextConfig = {
         pathname: "/kf/**",
       },
     ],
-    domains: ['firebasestorage.googleapis.com'],
+    domains: ['storage.googleapis.com'],
   },
 };
 

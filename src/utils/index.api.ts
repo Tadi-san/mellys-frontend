@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const API_URL = "http://localhost:3002/api";
-const API_URL = "https://143.110.150.238:3002/api";
+const API_URL = "http://143.110.150.238:3002/api";
 // const API_URL = "https://melly-s-fashion-backend.onrender.com/api";
 const AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWRtaW4iLCJ1c2VySWQiOiJlNDE5MzgzOS01MzU0LTRjNGUtODY4Yy1kYmM5YmYwYzE4MTciLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTI0NzY0NjMsImV4cCI6MTc1MjU2Mjg2M30.fCrezMjo0DUWtmaatBME43KPfnwwQ-kg0MWQ-IQKtfg";
 
@@ -612,6 +612,57 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error("Error getting Telebirr payment history:", error);
+      throw error;
+    }
+  },
+
+  // Review API endpoints
+  getReviews: async (productId: string) => {
+    try {
+      const response = await apiClient.get(`/reviews/?product_id=${productId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      throw error;
+    }
+  },
+
+  canUserReview: async (userId: string, productId: string) => {
+    try {
+      const response = await apiClient.get(`/reviews/can-review?user_id=${userId}&product_id=${productId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error checking review eligibility:", error);
+      throw error;
+    }
+  },
+
+  createReview: async (userId: string, productId: string, rating: number, comment: string, images?: string[]) => {
+    try {
+      const response = await apiClient.post("/reviews/", {
+        user_id: userId,
+        product_id: productId,
+        rating,
+        comment,
+        images: images || []
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error creating review:", error);
+      throw error;
+    }
+  },
+
+  uploadReviewImages: async (formData: FormData) => {
+    try {
+      const response = await apiClient.post("/uploads/review-images", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading review images:", error);
       throw error;
     }
   }

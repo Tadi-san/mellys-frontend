@@ -54,31 +54,41 @@ const TelebirrPayment: React.FC<TelebirrPaymentProps> = ({
         orderId: orderId
       };
 
-      // Only use H5 payment (web-based)
+      // Call the backend API
       const response = await api.initiateTelebirrH5(paymentPayload);
 
-      setPaymentData(response.data);
-      setPaymentStatus("INITIATED");
+      console.log("Payment response:", response);
 
-      // Handle H5 payment
-      if (response.data.paymentUrl) {
-        // Redirect to H5 payment page
-        window.location.href = response.data.paymentUrl;
-      } else {
+      // Check if the response has the expected structure
+      if (response.success && response.data && response.data.paymentUrl) {
+        setPaymentData(response.data);
+        setPaymentStatus("INITIATED");
+
         // Show success message
         toast({
           title: "Payment Initiated",
-          description: "Your payment has been initiated successfully",
+          description: "Redirecting to Telebirr payment page...",
         });
+
+        // Redirect to Telebirr payment page
+        window.location.href = response.data.paymentUrl;
+        
         onSuccess?.(response.data);
+      } else {
+        throw new Error("Invalid response format from server");
       }
 
     } catch (error: any) {
       console.error("Payment error:", error);
       setPaymentStatus("FAILED");
+      
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          "Failed to initiate payment";
+      
       toast({
         title: "Payment Failed",
-        description: error.response?.data?.message || "Failed to initiate payment",
+        description: errorMessage,
         variant: "destructive"
       });
       onError?.(error);

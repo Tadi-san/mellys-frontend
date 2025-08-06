@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import React, { Suspense, useEffect, useState } from "react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Heart, Lock, Minus, Plus, Share2, ShoppingCart } from "lucide-react";
@@ -22,6 +23,7 @@ import SkeletonLoading from "@/components/singleProductSkeletonLoading";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import LoginModal from "@/components/auth/LoginModal";
+import ReviewSection from "@/components/ReviewSection";
 import { getUser, isAuthenticated } from "@/utils/auth";
 const ProductDescription = ({ params }: { params: Promise<{ id: string }> }) => {
   const { toast } = useToast();
@@ -36,6 +38,9 @@ const ProductDescription = ({ params }: { params: Promise<{ id: string }> }) => 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [productId, setProductId] = useState<string | null>(null);
   const [isCartLoading, setIsCartLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+  const [allDescriptionImages, setAllDescriptionImages] = useState<string[]>([]);
 
   // Function to check if current size/color combination is in cart
   const checkCartStatus = async () => {
@@ -294,6 +299,43 @@ const handleWishList = async () => {
   const handleLoginSuccess = () => {
     setUser(getUser());
   };
+
+  // Image modal functions
+  const openImageModal = (imageUrl: string, imageIndex: number, allImages: string[]) => {
+    setSelectedImage(imageUrl);
+    setSelectedImageIndex(imageIndex);
+    setAllDescriptionImages(allImages);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+    setSelectedImageIndex(0);
+    setAllDescriptionImages([]);
+  };
+
+  const nextImage = () => {
+    if (selectedImageIndex < allDescriptionImages.length - 1) {
+      setSelectedImageIndex(selectedImageIndex + 1);
+      setSelectedImage(allDescriptionImages[selectedImageIndex + 1]);
+    }
+  };
+
+  const previousImage = () => {
+    if (selectedImageIndex > 0) {
+      setSelectedImageIndex(selectedImageIndex - 1);
+      setSelectedImage(allDescriptionImages[selectedImageIndex - 1]);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeImageModal();
+    } else if (e.key === 'ArrowRight') {
+      nextImage();
+    } else if (e.key === 'ArrowLeft') {
+      previousImage();
+    }
+  };
   if (!product) {
     return (
       <div className="w-full flex flex-col max-w-screen-2xl mx-auto mt-10">
@@ -492,11 +534,8 @@ const handleWishList = async () => {
       <div>
         <div className="w-full">
           <Tabs defaultValue="1" className="w-full mt-10 mb-20">
-            <TabsList className="flex flex-wrap md:grid md:grid-cols-3 md:w-1/2">
+            <TabsList className="flex flex-wrap md:grid md:grid-cols-2 md:w-1/2">
               <TabsTrigger className="" value="1">
-                Specifications
-              </TabsTrigger>
-              <TabsTrigger className="" value="3">
                 Description
               </TabsTrigger>
               <TabsTrigger className="" value="2">
@@ -504,113 +543,97 @@ const handleWishList = async () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* Specifications */}
-            <TabsContent value="1">
-              <Card className="border-none shadow-none mt-8 md:mt-0">
-                <CardHeader>
-                  <CardTitle>Specifications</CardTitle>
-                </CardHeader>
 
-                {/* SPECIFICATIONS FOR BIGGER SCREENS  */}
-                <CardContent className="hidden md:flex flex-wrap w-full">
-                  <div className="w-1/2">
-                    {/* <Table>
-                      <TableBody>
-                        {product.properties.list
-                          .slice(
-                            0,
-                            Math.ceil(product.properties.list.length / 2)
-                          )
-                          .map((property: any, index: any) => (
-                            <TableRow key={index}>
-                              <TableCell className="bg-accent">
-                                {property.name}
-                              </TableCell>
-                              <TableCell className="text-left ">
-                                {property.value}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table> */}
-                  </div>
-                  <div className="w-1/2">
-                    <Table>
-                      {/* <TableBody>
-                        {product.properties.list
-                          .slice(Math.ceil(product.properties.list.length / 2))
-                          .map((property: any, index: any) => (
-                            <TableRow key={index}>
-                              <TableCell className="bg-accent">
-                                {property.name}
-                              </TableCell>
-                              <TableCell className="text-left">
-                                {property.value}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody> */}
-                    </Table>
-                  </div>
-                </CardContent>
-
-                {/* SPECIFICATIONS FOR MOBILE DEVICES  */}
-                <CardContent className="flex flex-wrap w-full md:hidden">
-                  <Table>
-                    <TableBody className="">
-                      {/* {product.properties.list.map(
-                        (property: any, index: any) => (
-                          <TableRow key={index}>
-                            <TableCell className="bg-accent">
-                              {property.name}
-                            </TableCell>
-                            <TableCell className="text-left line-clamp-1">
-                              {property.value}
-                            </TableCell>
-                          </TableRow>
-                        )
-                      )} */}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Customer Reviews  */}
-            <TabsContent value="2">
-              <Card className="border-none shadow-none mt-8">
-                <CardHeader>
-                  <CardTitle> Customer Reviews (0)</CardTitle>
-                </CardHeader>
-              </Card>
-            </TabsContent>
 
             {/* Description  */}
-            <TabsContent value="3">
+            <TabsContent value="1">
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle>Description</CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-wrap md:grid md:grid-cols-3 md:gap-4 w-full">
-                {product.images.slice(1).map((src: any, index: any) => (
-  <div key={index} className="relative w-full h-64">
-<Image
-    src={src.image_url}
-    alt="Product image"
-    fill
-    sizes="(max-width: 768px) 100vw, 33vw"
-    className="object-contain"
-    quality={85}
-  />
-  </div>
-))}
-
+                <CardContent className="flex flex-col gap-4 w-full">
+                  {product.images.slice(1).map((src: any, index: any) => (
+                    <div 
+                      key={index} 
+                      className="relative w-full h-96 cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => openImageModal(src.image_url, index, product.images.slice(1).map((img: any) => img.image_url))}
+                    >
+                      <Image
+                        src={src.image_url}
+                        alt="Product image"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 100vw"
+                        className="object-contain"
+                        quality={85}
+                      />
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+                        {/* Customer Reviews  */}
+            <TabsContent value="2">
+              <ReviewSection productId={product.id} />
             </TabsContent>
           </Tabs>
         </div>
       </div>
+
+      {/* Full Screen Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Close Button */}
+            <button
+              onClick={closeImageModal}
+              className="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+
+            {/* Navigation Buttons */}
+            {allDescriptionImages.length > 1 && (
+              <>
+                <button
+                  onClick={previousImage}
+                  disabled={selectedImageIndex === 0}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-8 h-8" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  disabled={selectedImageIndex === allDescriptionImages.length - 1}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-8 h-8" />
+                </button>
+              </>
+            )}
+
+            {/* Image Counter */}
+            {allDescriptionImages.length > 1 && (
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-white text-sm">
+                {selectedImageIndex + 1} / {allDescriptionImages.length}
+              </div>
+            )}
+
+            {/* Main Image */}
+            <div className="max-w-full max-h-full p-4">
+              <img
+                src={selectedImage}
+                alt="Full screen product image"
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
