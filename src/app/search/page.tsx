@@ -2,19 +2,33 @@
 
 import React, { useEffect, useState } from "react";
 import ItemCard from "@/components/ItemCard";
-
 import { ChevronsUpDown } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 import Loading from "@/components/Loading";
 
-const ProductList = ({ params }: { params: { name: string } }) => {
+interface SearchPageProps {
+  params: Promise<{ name: string }>;
+}
+
+const ProductList = ({ params }: SearchPageProps) => {
   const [products, setProducts] = useState<any>();
   const [name, setName] = useState("");
+  const [searchParams, setSearchParams] = useState<{ name: string } | null>(null);
 
   useEffect(() => {
+    const getParams = async () => {
+      const resolvedParams = await params;
+      setSearchParams(resolvedParams);
+    };
+    getParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (!searchParams) return;
+
     const fetchProducts = async () => {
-      const paramName = params.name;
+      const paramName = searchParams.name;
       console.log("PARAM NAME : ", typeof paramName);
 
       try {
@@ -28,11 +42,12 @@ const ProductList = ({ params }: { params: { name: string } }) => {
         console.error(error);
       }
     };
-    setName(params.name);
+    
+    setName(searchParams.name);
     fetchProducts();
-  }, [params.name]);
+  }, [searchParams]);
 
-  if (!products) {
+  if (!products || !searchParams) {
     return <Loading />;
   }
 

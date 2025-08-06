@@ -108,7 +108,7 @@ const TelebirrPayment: React.FC<TelebirrPaymentProps> = ({
             alt="Telebirr" 
             className="w-6 h-6"
             onError={(e) => {
-              e.currentTarget.style.display = 'none';
+              e.currentTarget.style.display = "none";
             }}
           />
           Telebirr Payment
@@ -126,7 +126,7 @@ const TelebirrPayment: React.FC<TelebirrPaymentProps> = ({
         {/* Payment Information */}
         <div className="space-y-4">
           <div className="text-sm text-gray-600">
-            Complete your payment using Telebirr's secure web payment system.
+            Complete your payment using Telebirr&apos;s secure web payment system.
           </div>
           <div className="flex items-center gap-2 justify-center">
             <Badge variant="secondary">Web</Badge>
@@ -181,7 +181,7 @@ const TelebirrPayment: React.FC<TelebirrPaymentProps> = ({
         </div>
 
         {/* Payment Data Display (for debugging) */}
-        {process.env.NODE_ENV === 'development' && paymentData && (
+        {process.env.NODE_ENV === "development" && paymentData && (
           <details className="text-xs">
             <summary className="cursor-pointer">Payment Data</summary>
             <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">

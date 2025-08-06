@@ -208,7 +208,7 @@ const CheckoutPage = () => {
                 </div>
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} in your order
+                {cartItems.length} item{cartItems.length !== 1 ? "s" : ""} in your order
               </div>
             </div>
           </CardContent>
@@ -228,7 +228,7 @@ const CheckoutPage = () => {
                 Secure Payment
               </Badge>
               <p className="text-sm text-gray-600">
-                Complete your purchase using Telebirr - Ethiopia's trusted mobile money service.
+                Complete your purchase using Telebirr - Ethiopia&apos;s trusted mobile money service.
               </p>
             </div>
             
