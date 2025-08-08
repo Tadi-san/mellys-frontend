@@ -71,7 +71,18 @@ const TelebirrPayment: React.FC<TelebirrPaymentProps> = ({
         });
 
         // Redirect to Telebirr payment page
+        // Option 1: Direct redirect (current approach)
         window.location.href = response.data.paymentUrl;
+        
+        // Option 2: Open in new tab (documentation approach)
+        // const anchorEle = document.createElement("a");
+        // anchorEle.setAttribute("href", response.data.paymentUrl);
+        // anchorEle.setAttribute("target", "_blank");
+        // anchorEle.setAttribute("rel", "external");
+        // anchorEle.style.display = "none";
+        // document.body.appendChild(anchorEle);
+        // anchorEle.click();
+        // document.body.removeChild(anchorEle);
         
         onSuccess?.(response.data);
       } else {

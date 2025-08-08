@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// Use HTTPS with the working port 8443
-const API_URL = "https://143.110.150.238:8443/api";
+// Use HTTPS with Cloudflare domain - WORKING!
+const API_URL = "https://api.mellysbackend.com/api";
 
 const AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWRtaW4iLCJ1c2VySWQiOiJlNDE5MzgzOS01MzU0LTRjNGUtODY4Yy1kYmM5YmYwYzE4MTciLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTI0NzY0NjMsImV4cCI6MTc1MjU2Mjg2M30.fCrezMjo0DUWtmaatBME43KPfnwwQ-kg0MWQ-IQKtfg";
 
@@ -49,10 +49,6 @@ const apiClient = axios.create({
   // Add timeout and retry configuration
   timeout: 10000,
   withCredentials: false, // Set to false for cross-origin requests
-  // For self-signed certificates, we need to handle SSL verification
-  httpsAgent: new (require('https').Agent)({
-    rejectUnauthorized: false // Only for development with self-signed certs
-  })
 });
 
 // Add request interceptor for better error handling
@@ -121,7 +117,7 @@ export const api = {
     }
     try {
       console.log("Fetching cart from API for user:", userId);
-      const response = await apiClient.get(`/cart/${userId}`);
+      const response = await apiClient.get(`?path=cart/${userId}`);
       console.log("Cart API response:", response.data);
       // Backend returns cart items directly, not wrapped in a cart property
       return { cart: response.data };
@@ -186,7 +182,7 @@ export const api = {
         size,
         color: selectedColor,
       });
-      const response = await apiClient.post("/cart/add", {
+      const response = await apiClient.post("?path=cart/add", {
         user_id: userId,
         product_id: productId,
         title,
@@ -213,7 +209,7 @@ export const api = {
     }
     
     try {
-      const response = await apiClient.delete(`/cart/remove/${itemId}`);
+      const response = await apiClient.delete(`?path=cart/remove/${itemId}`);
       return response.data;
     } catch (error) {
       console.error("Error removing from cart:", error);
@@ -227,7 +223,7 @@ export const api = {
       return { wishlist: getGuestWishlist() };
     }
     try {
-      const response = await apiClient.get(`/wishlist/${userId}`);
+      const response = await apiClient.get(`?path=wishlist/${userId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching wishlist:", error);
@@ -266,7 +262,7 @@ export const api = {
     }
     
     try {
-      const response = await apiClient.post("/wishlist/add", {
+      const response = await apiClient.post("?path=wishlist/add", {
         productId,
         title,
         price,
@@ -288,7 +284,7 @@ export const api = {
     }
     
     try {
-      const response = await apiClient.delete(`/wishlist/remove/${productId}`);
+      const response = await apiClient.delete(`?path=wishlist/remove/${productId}`);
       return response.data;
     } catch (error) {
       console.error("Error removing from wishlist:", error);
@@ -299,7 +295,7 @@ export const api = {
     try {
       const formattedPhoneNumber = formatEthiopianPhoneNumber(phone_number);
       console.log(`Sending OTP to: ${formattedPhoneNumber}`);
-      const response = await axios.post(`${API_URL}/auth/sendotp`, {
+      const response = await axios.post(`${API_URL}?path=auth/sendotp`, {
         phone_number: formattedPhoneNumber,
       });
       return response.data;
@@ -318,7 +314,7 @@ export const api = {
       const formattedPhoneNumber = formatEthiopianPhoneNumber(phoneNumber);
       console.log(`Logging in with phone: ${formattedPhoneNumber}`);
       // For login, we might not want to send the auth token
-      const response = await axios.post(`${API_URL}/auth/login`, {
+      const response = await axios.post(`${API_URL}?path=auth/login`, {
         name,
         otp,
         email,
@@ -337,7 +333,7 @@ export const api = {
 
   getCategories: async () => {
     try {
-      const response = await apiClient.get("/categories/");
+      const response = await apiClient.get("?path=categories/");
       return response.data as any[];
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -347,7 +343,7 @@ export const api = {
 
   getProducts: async () => {
     try {
-      const response = await apiClient.get("/products/");
+      const response = await apiClient.get("?path=products/");
       return response.data as any[];
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -357,7 +353,7 @@ export const api = {
 
   getProductDetails: async (productId: string) => {
     try {
-      const response = await apiClient.get(`/products/${productId}`);
+      const response = await apiClient.get(`?path=products/${productId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching product details:", error);
@@ -415,7 +411,7 @@ export const api = {
     
     try {
       console.log("Making PATCH request to:", `/cart/update/${cartItemId}`);
-      const response = await apiClient.patch(`/cart/update/${cartItemId}`, {
+      const response = await apiClient.patch(`?path=cart/update/${cartItemId}`, {
         quantity,
       });
       console.log("Update cart response:", response.data);
@@ -473,7 +469,7 @@ export const api = {
 
   getUser: async (id: string) => {
     try {
-      const response = await apiClient.get(`/users/${id}`);
+      const response = await apiClient.get(`?path=users/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -484,7 +480,7 @@ export const api = {
   uploadImage: async (formData: FormData, id: string) => {
     try {
       // For file uploads, we need to override the default Content-Type
-      const response = await apiClient.post(`/uploads/?product_id=${id}`, formData, {
+      const response = await apiClient.post(`?path=uploads/?product_id=${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -500,7 +496,7 @@ export const api = {
     try {
       console.log(payloadData);
       // For file uploads, we need to override the default Content-Type
-      const response = await apiClient.post("/products", payloadData, {
+      const response = await apiClient.post("?path=products", payloadData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -519,7 +515,7 @@ export const api = {
   }) => {
     try {
       const response = await axios.post(
-        `${API_URL}/payments/initiate-payment`, // Your payment endpoint
+        `${API_URL}?path=payments/initiate-payment`, // Your payment endpoint
         payloadData,
         {
           headers: { 
@@ -546,7 +542,7 @@ export const api = {
   }) => {
     try {
       const response = await axios.post(
-        `${API_URL}/telebirr/b2b/initiate`,
+        `${API_URL}?path=telebirr/b2b/initiate`,
         payloadData,
         {
           headers: { 
@@ -571,7 +567,7 @@ export const api = {
   }) => {
     try {
       const response = await axios.post(
-        `${API_URL}/telebirr/create-payment`,
+        `${API_URL}?path=telebirr/create-payment`,
         payloadData,
         {
           headers: { 
@@ -596,7 +592,7 @@ export const api = {
   }) => {
     try {
       const response = await axios.post(
-        `${API_URL}/telebirr/miniapp/initiate`,
+        `${API_URL}?path=telebirr/miniapp/initiate`,
         payloadData,
         {
           headers: { 
@@ -615,7 +611,7 @@ export const api = {
   queryTelebirrPaymentStatus: async (merchOrderId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/telebirr/status/${merchOrderId}`,
+        `${API_URL}?path=telebirr/status/${merchOrderId}`,
         {
           headers: { 
             "Content-Type": "application/json",
@@ -637,7 +633,7 @@ export const api = {
       if (limit) params.append('limit', limit.toString());
 
       const response = await axios.get(
-        `${API_URL}/telebirr/history/${userId}?${params.toString()}`,
+        `${API_URL}?path=telebirr/history/${userId}&${params.toString()}`,
         {
           headers: { 
             "Content-Type": "application/json",
@@ -655,7 +651,7 @@ export const api = {
   // Review API endpoints
   getReviews: async (productId: string) => {
     try {
-      const response = await apiClient.get(`/reviews/?product_id=${productId}`);
+      const response = await apiClient.get(`?path=reviews/?product_id=${productId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -665,7 +661,7 @@ export const api = {
 
   canUserReview: async (userId: string, productId: string) => {
     try {
-      const response = await apiClient.get(`/reviews/can-review?user_id=${userId}&product_id=${productId}`);
+      const response = await apiClient.get(`?path=reviews/can-review?user_id=${userId}&product_id=${productId}`);
       return response.data;
     } catch (error) {
       console.error("Error checking review eligibility:", error);
@@ -675,7 +671,7 @@ export const api = {
 
   createReview: async (userId: string, productId: string, rating: number, comment: string, images?: string[]) => {
     try {
-      const response = await apiClient.post("/reviews/", {
+      const response = await apiClient.post("?path=reviews/", {
         user_id: userId,
         product_id: productId,
         rating,
@@ -691,7 +687,7 @@ export const api = {
 
   uploadReviewImages: async (formData: FormData) => {
     try {
-      const response = await apiClient.post("/uploads/review-images", formData, {
+      const response = await apiClient.post("?path=uploads/review-images", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
