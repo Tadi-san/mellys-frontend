@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// Use HTTPS with Cloudflare domain - WORKING!
-const API_URL = "https://api.mellysbackend.com/api";
+// Use HTTPS with the working port 8443
+const API_URL = "https://143.110.150.238:8443/api";
 
 const AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWRtaW4iLCJ1c2VySWQiOiJlNDE5MzgzOS01MzU0LTRjNGUtODY4Yy1kYmM5YmYwYzE4MTciLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTI0NzY0NjMsImV4cCI6MTc1MjU2Mjg2M30.fCrezMjo0DUWtmaatBME43KPfnwwQ-kg0MWQ-IQKtfg";
 
@@ -120,7 +120,7 @@ export const api = {
       const response = await apiClient.get(`/cart/${userId}`);
       console.log("Cart API response:", response.data);
       // Backend returns cart items directly, not wrapped in a cart property
-      return response.data;
+      return { cart: response.data };
     } catch (error) {
       console.error("Error fetching cart:", error);
       throw error;
@@ -182,7 +182,7 @@ export const api = {
         size,
         color: selectedColor,
       });
-      const response = await apiClient.post("?path=cart/add", {
+      const response = await apiClient.post("/cart/add", {
         user_id: userId,
         product_id: productId,
         title,
@@ -209,7 +209,7 @@ export const api = {
     }
     
     try {
-      const response = await apiClient.delete(`?path=cart/remove/${itemId}`);
+      const response = await apiClient.delete(`/cart/remove/${itemId}`);
       return response.data;
     } catch (error) {
       console.error("Error removing from cart:", error);
@@ -262,7 +262,7 @@ export const api = {
     }
     
     try {
-      const response = await apiClient.post("?path=wishlist/add", {
+      const response = await apiClient.post("/wishlist/add", {
         productId,
         title,
         price,
@@ -284,7 +284,7 @@ export const api = {
     }
     
     try {
-      const response = await apiClient.delete(`?path=wishlist/remove/${productId}`);
+      const response = await apiClient.delete(`/wishlist/remove/${productId}`);
       return response.data;
     } catch (error) {
       console.error("Error removing from wishlist:", error);
@@ -411,7 +411,7 @@ export const api = {
     
     try {
       console.log("Making PATCH request to:", `/cart/update/${cartItemId}`);
-      const response = await apiClient.patch(`?path=cart/update/${cartItemId}`, {
+      const response = await apiClient.patch(`/cart/update/${cartItemId}`, {
         quantity,
       });
       console.log("Update cart response:", response.data);
@@ -480,7 +480,7 @@ export const api = {
   uploadImage: async (formData: FormData, id: string) => {
     try {
       // For file uploads, we need to override the default Content-Type
-      const response = await apiClient.post(`?path=uploads/?product_id=${id}`, formData, {
+      const response = await apiClient.post(`/uploads/?product_id=${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -496,7 +496,7 @@ export const api = {
     try {
       console.log(payloadData);
       // For file uploads, we need to override the default Content-Type
-      const response = await apiClient.post("?path=products", payloadData, {
+      const response = await apiClient.post("/products", payloadData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -671,7 +671,7 @@ export const api = {
 
   createReview: async (userId: string, productId: string, rating: number, comment: string, images?: string[]) => {
     try {
-      const response = await apiClient.post("?path=reviews/", {
+      const response = await apiClient.post("/reviews/", {
         user_id: userId,
         product_id: productId,
         rating,
@@ -687,7 +687,7 @@ export const api = {
 
   uploadReviewImages: async (formData: FormData) => {
     try {
-      const response = await apiClient.post("?path=uploads/review-images", formData, {
+      const response = await apiClient.post("/uploads/review-images", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
