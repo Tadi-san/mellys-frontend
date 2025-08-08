@@ -314,7 +314,7 @@ export const api = {
       const formattedPhoneNumber = formatEthiopianPhoneNumber(phoneNumber);
       console.log(`Logging in with phone: ${formattedPhoneNumber}`);
       // For login, we might not want to send the auth token
-      const response = await axios.post(`${API_URL}?path=auth/login`, {
+      const response = await axios.post(`${API_URL}/auth/login`, {
         name,
         otp,
         email,
@@ -333,7 +333,7 @@ export const api = {
 
   getCategories: async () => {
     try {
-      const response = await apiClient.get("?path=categories/");
+      const response = await apiClient.get("/categories/");
       return response.data as any[];
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -343,7 +343,7 @@ export const api = {
 
   getProducts: async () => {
     try {
-      const response = await apiClient.get("?path=products/");
+      const response = await apiClient.get("/products/");
       return response.data as any[];
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -353,7 +353,7 @@ export const api = {
 
   getProductDetails: async (productId: string) => {
     try {
-      const response = await apiClient.get(`?path=products/${productId}`);
+      const response = await apiClient.get(`/products/${productId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching product details:", error);

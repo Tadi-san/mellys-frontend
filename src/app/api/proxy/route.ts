@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   const path = searchParams.get('path') || '';
   
   try {
+    // Remove the ?path= parameter and call the API directly
     const response = await fetch(`https://api.mellysbackend.com/api/${path}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   
   try {
+    // Remove the ?path= parameter and call the API directly
     const response = await fetch(`https://api.mellysbackend.com/api/${path}`, {
       method: 'POST',
       headers: {
