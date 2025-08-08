@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telebirr Web Gateway Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-url {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Telebirr Web Gateway Test</h1>
+        
+        <h2>Test URLs</h2>
+        
+        <h3>Test 1: Basic URL without parameters</h3>
+        <div class="test-url">https://developerportal.ethiotelebirr.et:38443/payment/web/paygate</div>
+        <button class="button" onclick="testUrl1()">Test URL 1</button>
+        <div id="status1" class="status"></div>
+        
+        <h3>Test 2: URL with parameters from your logs</h3>
+        <div class="test-url">https://developerportal.ethiotelebirr.et:38443/payment/web/paygate?appid=1464274845952000&merch_code=436005&nonce_str=F5SF62GBDCU7D838R1BBISLS2WU43J1S&prepay_id=0189d8b61340bd8afb02d58f2291dd26a5b006&timestamp=1754659874&sign=m4R03rwto7gWTzujpUcr7IaSKQV8g1YGulkmkZThyy4YtOVyIjoMMDuxreqEPdECH52w+0XgYBix18RfAvhwHoqa+20mRySjZRv4UJT+T4tmaJIEpCxKzEi2yS0xsWBmus8EFfqly/xoaFjtcehgGRpZy9SGWZyKtza78jLJdgY6IILmSE29M74Tqur0S6xsCGRGjCUJ58AWO7dcszQ5b6X+IDdxs73paW4ZgEHNBP6g5YRPNoE4ja7JTEz3AQe+iXT3zyFVh4ZSoWVgchDzA1QPKq6X9J7V2IsXS01ccpxqrM8FuuBLhq2QvpdG9247ZwTfQK3+X4KxELSrwf3a5A==&sign_type=SHA256WithRSA&version=1.0&trade_type=Checkout</div>
+        <button class="button" onclick="testUrl2()">Test URL 2</button>
+        <div id="status2" class="status"></div>
+        
+        <h3>Test 3: URL without port number</h3>
+        <div class="test-url">https://developerportal.ethiotelebirr.et/payment/web/paygate</div>
+        <button class="button" onclick="testUrl3()">Test URL 3</button>
+        <div id="status3" class="status"></div>
+        
+        <h2>Instructions</h2>
+        <p>Click the test buttons to open the URLs in a new tab. This will help us determine if the web gateway works in a browser environment.</p>
+        
+        <h2>Expected Results</h2>
+        <ul>
+            <li>If the URL opens successfully: The web gateway is working</li>
+            <li>If you get a 403 error: There's still an issue with the URL or parameters</li>
+            <li>If you get a different error: We need to investigate further</li>
+        </ul>
+    </div>
+
+    <script>
+        function testUrl1() {
+            const url = 'https://developerportal.ethiotelebirr.et:38443/payment/web/paygate';
+            openUrl(url, 'status1');
+        }
+        
+        function testUrl2() {
+            const url = 'https://developerportal.ethiotelebirr.et:38443/payment/web/paygate?appid=1464274845952000&merch_code=436005&nonce_str=F5SF62GBDCU7D838R1BBISLS2WU43J1S&prepay_id=0189d8b61340bd8afb02d58f2291dd26a5b006&timestamp=1754659874&sign=m4R03rwto7gWTzujpUcr7IaSKQV8g1YGulkmkZThyy4YtOVyIjoMMDuxreqEPdECH52w+0XgYBix18RfAvhwHoqa+20mRySjZRv4UJT+T4tmaJIEpCxKzEi2yS0xsWBmus8EFfqly/xoaFjtcehgGRpZy9SGWZyKtza78jLJdgY6IILmSE29M74Tqur0S6xsCGRGjCUJ58AWO7dcszQ5b6X+IDdxs73paW4ZgEHNBP6g5YRPNoE4ja7JTEz3AQe+iXT3zyFVh4ZSoWVgchDzA1QPKq6X9J7V2IsXS01ccpxqrM8FuuBLhq2QvpdG9247ZwTfQK3+X4KxELSrwf3a5A==&sign_type=SHA256WithRSA&version=1.0&trade_type=Checkout';
+            openUrl(url, 'status2');
+        }
+        
+        function testUrl3() {
+            const url = 'https://developerportal.ethiotelebirr.et/payment/web/paygate';
+            openUrl(url, 'status3');
+        }
+        
+        function openUrl(url, statusId) {
+            const statusElement = document.getElementById(statusId);
+            statusElement.innerHTML = '<strong>Opening URL in new tab...</strong>';
+            statusElement.className = 'status';
+            
+            try {
+                // Create anchor element and click it (like in the Telebirr docs)
+                const anchorEle = document.createElement("a");
+                anchorEle.setAttribute("href", url);
+                anchorEle.setAttribute("target", "_blank");
+                anchorEle.setAttribute("rel", "external");
+                anchorEle.style.display = "none";
+                document.body.appendChild(anchorEle);
+                anchorEle.click();
+                document.body.removeChild(anchorEle);
+                
+                statusElement.innerHTML = '<strong>✅ URL opened successfully in new tab!</strong><br>Check the new tab to see if the payment gateway loads.';
+                statusElement.className = 'status success';
+            } catch (error) {
+                statusElement.innerHTML = '<strong>❌ Error opening URL:</strong><br>' + error.message;
+                statusElement.className = 'status error';
+            }
+        }
+    </script>
+</body>
+</html>
