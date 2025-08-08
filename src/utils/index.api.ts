@@ -117,10 +117,10 @@ export const api = {
     }
     try {
       console.log("Fetching cart from API for user:", userId);
-      const response = await apiClient.get(`?path=cart/${userId}`);
+      const response = await apiClient.get(`/cart/${userId}`);
       console.log("Cart API response:", response.data);
       // Backend returns cart items directly, not wrapped in a cart property
-      return { cart: response.data };
+      return response.data;
     } catch (error) {
       console.error("Error fetching cart:", error);
       throw error;
@@ -223,7 +223,7 @@ export const api = {
       return { wishlist: getGuestWishlist() };
     }
     try {
-      const response = await apiClient.get(`?path=wishlist/${userId}`);
+      const response = await apiClient.get(`/wishlist/${userId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching wishlist:", error);
@@ -295,7 +295,7 @@ export const api = {
     try {
       const formattedPhoneNumber = formatEthiopianPhoneNumber(phone_number);
       console.log(`Sending OTP to: ${formattedPhoneNumber}`);
-      const response = await axios.post(`${API_URL}?path=auth/sendotp`, {
+      const response = await axios.post(`${API_URL}/auth/sendotp`, {
         phone_number: formattedPhoneNumber,
       });
       return response.data;
@@ -469,7 +469,7 @@ export const api = {
 
   getUser: async (id: string) => {
     try {
-      const response = await apiClient.get(`?path=users/${id}`);
+      const response = await apiClient.get(`/users/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -515,7 +515,7 @@ export const api = {
   }) => {
     try {
       const response = await axios.post(
-        `${API_URL}?path=payments/initiate-payment`, // Your payment endpoint
+        `${API_URL}/payments/initiate-payment`, // Your payment endpoint
         payloadData,
         {
           headers: { 
@@ -542,7 +542,7 @@ export const api = {
   }) => {
     try {
       const response = await axios.post(
-        `${API_URL}?path=telebirr/b2b/initiate`,
+        `${API_URL}/telebirr/b2b/initiate`,
         payloadData,
         {
           headers: { 
@@ -567,7 +567,7 @@ export const api = {
   }) => {
     try {
       const response = await axios.post(
-        `${API_URL}?path=telebirr/create-payment`,
+        `${API_URL}/telebirr/create-payment`,
         payloadData,
         {
           headers: { 
@@ -592,7 +592,7 @@ export const api = {
   }) => {
     try {
       const response = await axios.post(
-        `${API_URL}?path=telebirr/miniapp/initiate`,
+        `${API_URL}/telebirr/miniapp/initiate`,
         payloadData,
         {
           headers: { 
@@ -611,7 +611,7 @@ export const api = {
   queryTelebirrPaymentStatus: async (merchOrderId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}?path=telebirr/status/${merchOrderId}`,
+        `${API_URL}/telebirr/status/${merchOrderId}`,
         {
           headers: { 
             "Content-Type": "application/json",
@@ -633,7 +633,7 @@ export const api = {
       if (limit) params.append('limit', limit.toString());
 
       const response = await axios.get(
-        `${API_URL}?path=telebirr/history/${userId}&${params.toString()}`,
+        `${API_URL}/telebirr/history/${userId}&${params.toString()}`,
         {
           headers: { 
             "Content-Type": "application/json",
@@ -651,7 +651,7 @@ export const api = {
   // Review API endpoints
   getReviews: async (productId: string) => {
     try {
-      const response = await apiClient.get(`?path=reviews/?product_id=${productId}`);
+      const response = await apiClient.get(`/reviews/?product_id=${productId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -661,7 +661,7 @@ export const api = {
 
   canUserReview: async (userId: string, productId: string) => {
     try {
-      const response = await apiClient.get(`?path=reviews/can-review?user_id=${userId}&product_id=${productId}`);
+      const response = await apiClient.get(`/reviews/can-review?user_id=${userId}&product_id=${productId}`);
       return response.data;
     } catch (error) {
       console.error("Error checking review eligibility:", error);
