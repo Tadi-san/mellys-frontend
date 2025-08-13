@@ -50,8 +50,10 @@ const MobileNavbar = () => {
   };
 
   const handleSearch = async () => {
+    if (!searchInput.trim()) return;
+    const query = searchInput.trim();
     setSearchInput("");
-    router.push(`/search/${searchInput}`);
+    router.push(`/search/${encodeURIComponent(query)}`);
   };
 
   const handleLoginSuccess = () => {
@@ -93,33 +95,9 @@ const MobileNavbar = () => {
           </button>
 
           {authenticated ? (
-            <Dialog>
-              <DialogTrigger asChild>
-                <User className="w-6 h-6 cursor-pointer" />
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Sign Out</DialogTitle>
-                  <DialogDescription className="">
-                    You will be returned to the login screen
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex gap-4">
-                  <DialogClose className="w-full rounded-3xl" asChild>
-                    <Button type="button" variant="secondary">
-                      Close
-                    </Button>
-                  </DialogClose>
-                  <Button
-                    onClick={() => handleSignOut()}
-                    variant="myBtn"
-                    className="w-full rounded-3xl"
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Link href="/profile">
+              <User className="w-6 h-6 cursor-pointer" />
+            </Link>
           ) : (
             <button onClick={() => setShowLoginModal(true)}>
               <User className="w-6 h-6 cursor-pointer" />

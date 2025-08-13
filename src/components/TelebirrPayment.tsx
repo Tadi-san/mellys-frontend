@@ -58,6 +58,7 @@ const TelebirrPayment: React.FC<TelebirrPaymentProps> = ({
       const response = await api.initiateTelebirrH5(paymentPayload);
 
       console.log("Payment response:", response);
+      console.log("Payment URL:", response.data?.paymentUrl);
 
       // Check if the response has the expected structure
       if (response.success && response.data && response.data.paymentUrl) {
@@ -71,10 +72,21 @@ const TelebirrPayment: React.FC<TelebirrPaymentProps> = ({
         });
 
         // Redirect to Telebirr payment page
-        // Option 1: Direct redirect (current approach)
-        window.location.href = response.data.paymentUrl;
+        console.log("Redirecting to payment URL:", response.data.paymentUrl);
         
-        // Option 2: Open in new tab (documentation approach)
+        // Option 1: Direct redirect (current approach)
+        try {
+          window.location.href = response.data.paymentUrl;
+        } catch (redirectError) {
+          console.error("Redirect failed:", redirectError);
+          // Fallback: open in new tab
+          window.open(response.data.paymentUrl, '_blank');
+        }
+        
+        // Option 2: Open in new tab (alternative approach)
+        // window.open(response.data.paymentUrl, '_blank');
+        
+        // Option 3: Create anchor element (documentation approach)
         // const anchorEle = document.createElement("a");
         // anchorEle.setAttribute("href", response.data.paymentUrl);
         // anchorEle.setAttribute("target", "_blank");
@@ -198,6 +210,22 @@ const TelebirrPayment: React.FC<TelebirrPaymentProps> = ({
             <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
               {JSON.stringify(paymentData, null, 2)}
             </pre>
+            {paymentData.paymentUrl && (
+              <div className="mt-2">
+                <div className="text-xs font-semibold">Payment URL:</div>
+                <div className="text-xs break-all bg-blue-50 p-2 rounded mt-1">
+                  {paymentData.paymentUrl}
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => window.open(paymentData.paymentUrl, '_blank')}
+                >
+                  Open Payment URL
+                </Button>
+              </div>
+            )}
           </details>
         )}
       </CardContent>

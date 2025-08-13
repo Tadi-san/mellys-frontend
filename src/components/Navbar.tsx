@@ -72,8 +72,9 @@ const Navbar = () => {
   };
 
   const handleSearch = async () => {
+    if (!searchInput.trim()) return;
     console.log("searchInput", searchInput);
-    router.push(`/search/${searchInput}`);
+    router.push(`/search/${encodeURIComponent(searchInput.trim())}`);
     setSearchInput("");
   };
 
@@ -178,10 +179,20 @@ const Navbar = () => {
                 )}
                 <Separator />
                 <div className="w-full flex flex-col gap-2 items-start">
-                  <button className="flex gap-2 items-center w-full px-4 py-2 rounded-md hover:bg-gray-100 hover:text-red-500 group">
+                  <Link
+                    href="/profile"
+                    className="flex gap-2 items-center w-full px-4 py-2 rounded-md hover:bg-gray-100 hover:text-red-500 group"
+                  >
+                    <User className="w-4 h-4 group-hover:text-foreground" />
+                    <p>My Profile</p>
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="flex gap-2 items-center w-full px-4 py-2 rounded-md hover:bg-gray-100 hover:text-red-500 group"
+                  >
                     <NotepadText className="w-4 h-4 group-hover:text-foreground" />
-                    <p>My Order</p>
-                  </button>
+                    <p>My Orders</p>
+                  </Link>
                   <Link
                     href="/wishlist"
                     className="flex gap-2 items-center w-full px-4 py-2 rounded-md hover:bg-gray-100 hover:text-red-500 group"

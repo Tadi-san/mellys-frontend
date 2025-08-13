@@ -1,88 +1,189 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ItemCard from "@/components/ItemCard";
-import { ChevronsUpDown } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import axios from "axios";
-import Loading from "@/components/Loading";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, TrendingUp, Clock, Star } from "lucide-react";
+import { api } from "@/utils/index.api";
 
-interface SearchPageProps {
-  params: Promise<{ name: string }>;
-}
-
-const ProductList = ({ params }: SearchPageProps) => {
-  const [products, setProducts] = useState<any>();
-  const [name, setName] = useState("");
-  const [searchParams, setSearchParams] = useState<{ name: string } | null>(null);
-
-  useEffect(() => {
-    const getParams = async () => {
-      const resolvedParams = await params;
-      setSearchParams(resolvedParams);
-    };
-    getParams();
-  }, [params]);
+const SearchPage = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [popularCategories, setPopularCategories] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!searchParams) return;
+    // Load recent searches from localStorage
+    const saved = localStorage.getItem("recentSearches");
+    if (saved) {
+      setRecentSearches(JSON.parse(saved));
+    }
 
-    const fetchProducts = async () => {
-      const paramName = searchParams.name;
-      console.log("PARAM NAME : ", typeof paramName);
+    // Load popular categories
+    loadPopularCategories();
+  }, []);
 
-      try {
-        const response = await axios.get(
-          `https://ali-express-clone.onrender.com/api/category/${paramName}`
-        );
-        console.log("List : ", response.data?.result);
-        setProducts(response.data?.result?.resultList);
-        setName(response.data?.result?.base?.q);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    
-    setName(searchParams.name);
-    fetchProducts();
-  }, [searchParams]);
+  const loadPopularCategories = async () => {
+    try {
+      const categories = await api.getCategories();
+      setPopularCategories(categories.slice(0, 8)); // Show first 8 categories
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  };
 
-  if (!products || !searchParams) {
-    return <Loading />;
-  }
+  const handleSearch = (query: string) => {
+    if (!query.trim()) return;
+
+    // Add to recent searches
+    const updated = [query, ...recentSearches.filter(s => s !== query)].slice(0, 5);
+    setRecentSearches(updated);
+    localStorage.setItem("recentSearches", JSON.stringify(updated));
+
+    // Navigate to search results
+    router.push(`/search/${encodeURIComponent(query)}`);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch(searchQuery);
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    localStorage.removeItem("recentSearches");
+  };
 
   return (
-    <div className="w-full max-w-screen-xl mx-auto md:mt-10">
-      <div className="block md:hidden text-center font-bold text-xl">
-        {name}
+    <div className="w-full max-w-4xl mx-auto p-4">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold mb-4">Search Products</h1>
+        <p className="text-gray-600">Find exactly what you're looking for</p>
       </div>
 
-      <div className="hidden md:flex justify-between items-center text-sm">
-        <div className="text-2xl font-bold">{name}:</div>
-        <div className="flex gap-2 items-center">
-          <p>Sort by:</p>
-          <div className="flex justify-center items-center gap-5 border rounded-3xl px-4 py-2">
-            <button className="">Best Match</button>
-            <Separator className="h-6" orientation="vertical" />
-            <button className="">Orders</button>
-            <Separator className="h-6" orientation="vertical" />
-            <button className="flex justify-center items-center">
-              <span>Prices</span>
-              <ChevronsUpDown className="w-4 h-4 ml-2" />
-            </button>
-          </div>
+      {/* Search Form */}
+      <form onSubmit={handleSubmit} className="mb-8">
+        <div className="relative max-w-2xl mx-auto">
+          <Input
+            type="text"
+            placeholder="Search for products, categories, or brands..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 text-lg"
+          />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Button 
+            type="submit" 
+            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+            disabled={isLoading}
+          >
+            {isLoading ? "Searching..." : "Search"}
+          </Button>
         </div>
+      </form>
+
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Recent Searches */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              Recent Searches
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recentSearches.length > 0 ? (
+              <div className="space-y-2">
+                {recentSearches.map((search, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSearch(search)}
+                    className="w-full text-left p-2 rounded-md hover:bg-gray-100 transition-colors"
+                  >
+                    {search}
+                  </button>
+                ))}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearRecentSearches}
+                  className="text-xs text-gray-500"
+                >
+                  Clear History
+                </Button>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">
+                No recent searches
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Popular Categories */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Popular Categories
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {popularCategories.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2">
+                {popularCategories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleSearch(category.name)}
+                    className="text-left p-2 rounded-md hover:bg-gray-100 transition-colors"
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">
+                Loading categories...
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="w-full max-w-screen-xl flex flex-wrap gap-5 justify-center md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4 mt-5">
-        {products.map((product: any, index: number) => (
-          <div key={index}>
-            <ItemCard product={product} />
+      {/* Search Tips */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Star className="w-5 h-5" />
+            Search Tips
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h4 className="font-medium mb-2">Product Names</h4>
+              <p className="text-gray-600">Search for specific product names or brands</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Categories</h4>
+              <p className="text-gray-600">Browse products by category or type</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Features</h4>
+              <p className="text-gray-600">Search for products with specific features</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Price Range</h4>
+              <p className="text-gray-600">Use filters to find products within your budget</p>
+            </div>
           </div>
-        ))}
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default ProductList;
+export default SearchPage;

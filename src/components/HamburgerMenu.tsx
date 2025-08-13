@@ -52,7 +52,7 @@ const HamburgerMenu = () => {
         <SheetHeader className="mt-6">
           <SheetTitle className="text-base font-normal flex justify-around gap-12 text-start flex-wrap">
             {data.map((item: any) => (
-              <Link href={`/search/${item.name}`} key={item.id} className="">
+              <Link href={`/search/${encodeURIComponent(item.name)}`} key={item.id} className="">
                 <SheetClose className="flex flex-col gap-2 justify-start items-start">
               <Image
     src={item.img}

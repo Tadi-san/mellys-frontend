@@ -697,6 +697,96 @@ export const api = {
       console.error("Error uploading review images:", error);
       throw error;
     }
+  },
+
+  // User Profile API endpoints
+  getUserProfile: async (userId: string) => {
+    try {
+      const response = await apiClient.get(`/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    }
+  },
+
+  updateUserProfile: async (userId: string, userData: any) => {
+    try {
+      const response = await apiClient.put(`/users/${userId}`, userData);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      throw error;
+    }
+  },
+
+  getUserOrders: async (userId: string) => {
+    try {
+      const response = await apiClient.get(`/orders/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      throw error;
+    }
+  },
+
+  getOrderById: async (orderId: string) => {
+    try {
+      const response = await apiClient.get(`/orders/${orderId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching order:", error);
+      throw error;
+    }
+  },
+
+  // Search API endpoints
+  searchProducts: async (params: {
+    query?: string;
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+  }) => {
+    try {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, value.toString());
+        }
+      });
+
+      const response = await apiClient.get(`/products/search?${searchParams.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error searching products:", error);
+      throw error;
+    }
+  },
+
+  searchProductsByCategory: async (categoryName: string, params: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  } = {}) => {
+    try {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, value.toString());
+        }
+      });
+
+      const response = await apiClient.get(`/products/category/${encodeURIComponent(categoryName)}?${searchParams.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error searching products by category:", error);
+      throw error;
+    }
   }
 };
 
