@@ -80,7 +80,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
     };
 
     loadData();
-  }, [productId, user?.id]);
+  }, [productId, user?.id, checkReviewEligibility, fetchReviews]);
 
   const handleReviewSubmitted = () => {
     setShowReviewForm(false);

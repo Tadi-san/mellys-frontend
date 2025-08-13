@@ -90,7 +90,7 @@ const ProductDescription = ({ params }: { params: Promise<{ id: string }> }) => 
   // Check cart status when product loads or size/color changes
   useEffect(() => {
     checkCartStatus();
-  }, [product, selectedSize, selectedColor]);
+  }, [product, selectedSize, selectedColor, checkCartStatus]);
 
   // Await params and set productId
   useEffect(() => {

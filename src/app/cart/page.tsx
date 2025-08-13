@@ -51,7 +51,7 @@ const CartPage = () => {
 // In your useEffect for fetching cart:
 useEffect(() => {
   fetchCartDetails();
-}, []); // Remove user.id from dependencies
+}, [fetchCartDetails]); // Add fetchCartDetails to dependencies
 
 // In your removeProductById function:
 const removeProductById = async (item: any) => {

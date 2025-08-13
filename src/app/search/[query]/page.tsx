@@ -72,7 +72,7 @@ const SearchPage = ({ params }: SearchPageProps) => {
   useEffect(() => {
     if (!searchParams) return;
     performSearch();
-  }, [searchParams, filters]);
+  }, [searchParams, filters, performSearch]);
 
   const performSearch = async () => {
     try {
@@ -138,7 +138,7 @@ const SearchPage = ({ params }: SearchPageProps) => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">
-              Search Results for "{searchParams.query}"
+              Search Results for &quot;{searchParams.query}&quot;
             </h1>
             {searchResults && (
               <p className="text-gray-600">
