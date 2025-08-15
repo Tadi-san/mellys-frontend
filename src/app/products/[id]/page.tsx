@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,7 @@ const ProductDescription = ({ params }: { params: Promise<{ id: string }> }) => 
   const [allDescriptionImages, setAllDescriptionImages] = useState<string[]>([]);
 
   // Function to check if current size/color combination is in cart
-  const checkCartStatus = async () => {
+  const checkCartStatus = useCallback(async () => {
     if (!product) return;
     
     try {
@@ -85,7 +85,7 @@ const ProductDescription = ({ params }: { params: Promise<{ id: string }> }) => 
     } catch (error) {
       console.error("Error checking cart status:", error);
     }
-  };
+  }, [product, selectedSize, selectedColor]);
 
   // Check cart status when product loads or size/color changes
   useEffect(() => {

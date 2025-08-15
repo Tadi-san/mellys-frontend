@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ItemCard from "@/components/ItemCard";
 import Loading from "@/components/Loading";
@@ -69,12 +69,28 @@ const SearchPage = ({ params }: SearchPageProps) => {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
+  const performSearch = useCallback(async () => {
     if (!searchParams) return;
-    performSearch();
-  }, [searchParams, filters, performSearch]);
+    
+    try {
+      setIsLoading(true);
+      const searchData = await api.searchProducts(filters);
+      setSearchResults(searchData);
+    } catch (error) {
+      console.error("Error searching products:", error);
+      toast({
+        title: "Error",
+        description: "Failed to search products. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchParams, filters]);
 
-  const performSearch = async () => {
+  useEffect(() => {
+    performSearch();
+  }, [performSearch]);
     try {
       setIsLoading(true);
       const searchData = await api.searchProducts(filters);

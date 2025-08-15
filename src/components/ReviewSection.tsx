@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, MessageSquare, Plus } from "lucide-react";
@@ -40,7 +40,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
 
   const user = getUser();
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const reviewsData = await api.getReviews(productId);
       setReviews(reviewsData);
@@ -53,9 +53,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-  };
+  }, [productId]);
 
-  const checkReviewEligibility = async () => {
+  const checkReviewEligibility = useCallback(async () => {
     if (!user?.id) {
       setCanReview(false);
       return;
@@ -70,7 +70,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
       console.error("Error checking review eligibility:", error);
       setCanReview(false);
     }
-  };
+  }, [user?.id, productId]);
 
   useEffect(() => {
     const loadData = async () => {

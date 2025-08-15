@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -32,7 +32,7 @@ const CartPage = () => {
   };
   const router = useRouter();
 
-  const fetchCartDetails = async () => {
+  const fetchCartDetails = useCallback(async () => {
     setIsLoading(true);
     try {
       const user = getUser(); // Get fresh user data
@@ -46,12 +46,12 @@ const CartPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
 // In your useEffect for fetching cart:
 useEffect(() => {
   fetchCartDetails();
-}, [fetchCartDetails]); // Add fetchCartDetails to dependencies
+}, [fetchCartDetails]);
 
 // In your removeProductById function:
 const removeProductById = async (item: any) => {
